@@ -1,0 +1,103 @@
+.sidebar-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background: white;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 0 20px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 20px;
+}
+
+.sidebar-logo {
+  width: 32px;
+  height: 32px;
+}
+
+.sidebar-header h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-item {
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.2s ease;
+  position: relative;
+  font-weight: 500;
+}
+
+.sidebar-item:hover {
+  background: #f8f9fa;
+  color: #007bff;
+}
+
+.sidebar-item.active {
+  color: #007bff;
+  background: #e3f2fd;
+}
+
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #007bff;
+}
+
+.sidebar-icon {
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+}
+
+.sidebar-content {
+  flex: 1;
+  background: #f8f9fa;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Optional: Add a media query for mobile devices */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 60px;
+  }
+
+  .sidebar-header h1 {
+    display: none;
+  }
+
+  .sidebar-item {
+    padding: 12px;
+    justify-content: center;
+  }
+
+  .sidebar-item span:not(.sidebar-icon) {
+    display: none;
+  }
+} 

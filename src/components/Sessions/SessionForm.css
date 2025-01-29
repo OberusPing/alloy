@@ -1,0 +1,68 @@
+/* Remove duplicated styles that are now in common.css */
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--color-text-light);
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+}
+
+.close-button:hover {
+  color: var(--color-text);
+}
+
+.session-form {
+  margin-top: 20px;
+}
+
+.workout-selection {
+  margin-bottom: 20px;
+}
+
+.date-selection {
+  margin-bottom: 20px;
+}
+
+.metrics-container {
+  background: var(--color-secondary);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.metrics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.metrics-title {
+  color: var(--color-text);
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.metric-input-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.metric-label {
+  min-width: 120px;
+  color: var(--color-text);
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+} 

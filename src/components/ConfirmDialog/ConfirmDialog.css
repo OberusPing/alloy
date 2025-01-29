@@ -1,0 +1,27 @@
+.confirm-dialog {
+  max-width: 400px;
+}
+
+.confirm-dialog h2 {
+  margin-top: 0;
+  color: var(--color-text);
+}
+
+.confirm-dialog p {
+  color: var(--color-text-light);
+  margin-bottom: 20px;
+}
+
+.confirm-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancel-button {
+  composes: btn btn-secondary;
+}
+
+.confirm-button {
+  composes: btn btn-danger;
+} 

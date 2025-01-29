@@ -1,0 +1,43 @@
+.create-session-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 12px 24px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.create-session-button:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+.create-session-button:active {
+  transform: translateY(0);
+}
+
+.button-icon {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Optional: Add a media query for mobile devices */
+@media (max-width: 768px) {
+  .create-session-button {
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+} 

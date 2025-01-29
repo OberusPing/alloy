@@ -1,0 +1,44 @@
+.completion-form {
+  margin-top: 20px;
+}
+
+.metric-group {
+  background: var(--color-secondary);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.metric-name {
+  font-weight: 200;
+  color: var(--color-text);
+}
+
+.target-value {
+  font-size: 0.9em;
+  color: var(--color-text-light);
+}
+
+.actual-input {
+  width: 100%;
+}
+
+.metric-inputs {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.metric-inputs h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+} 

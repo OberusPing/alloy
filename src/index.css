@@ -5,15 +5,6 @@ body {
   user-select: none;
 }
 
-#app {
-  max-width: 40rem;
-  margin: 2rem auto;
-  display: grid;
-  grid-template-columns: 1fr;
-  column-gap: 2rem;
-  align-items: start;
-  row-gap: 1rem;
-}
 
 h1 {
   font-weight: 600;

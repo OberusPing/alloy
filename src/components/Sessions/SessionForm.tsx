@@ -16,7 +16,7 @@ type SessionFormProps = {
 export const SessionForm = ({ isOpen, onClose }: SessionFormProps) => {
   const [selectedWorkout, setSelectedWorkout] = useState('');
   const [metricValues, setMetricValues] = useState<Record<string, number>>({});
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [plannedDate, setPlannedDate] = useState(new Date().toISOString().split('T')[0]);
   
   const workouts = useTable('workouts') as Record<string, WorkoutData>;
   const store = useStore()!;
@@ -27,7 +27,7 @@ export const SessionForm = ({ isOpen, onClose }: SessionFormProps) => {
 
     // Add the new session directly using the store
     store.addRow('sessions', {
-      date: date,
+      plannedDate: plannedDate,
       workoutName: workouts[selectedWorkout].name,
       completed: false,
       targetMetrics: JSON.stringify(
@@ -41,7 +41,7 @@ export const SessionForm = ({ isOpen, onClose }: SessionFormProps) => {
     // Reset form and close
     setSelectedWorkout('');
     setMetricValues({});
-    setDate(new Date().toISOString().split('T')[0]);
+    setPlannedDate(new Date().toISOString().split('T')[0]);
     onClose();
   };
 
@@ -58,8 +58,8 @@ export const SessionForm = ({ isOpen, onClose }: SessionFormProps) => {
             <input
               type="date"
               id="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
+              value={plannedDate}
+              onChange={(e) => setPlannedDate(e.target.value)}
               required
             />
           </div>

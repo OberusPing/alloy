@@ -1,0 +1,91 @@
+.workouts-view {
+  /* Remove composes */
+}
+
+.workouts-view-header {
+  /* Remove composes */
+}
+
+.filter-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;  /* Add spacing below filters */
+}
+
+.filter-controls select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+  background: white;
+}
+
+.workouts-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.workout-item {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 15px;
+  transition: all 0.2s ease;
+}
+
+.workout-item:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.workout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.workout-header h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.2em;
+}
+
+.category-tag {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.metrics-list h4 {
+  margin: 0 0 8px 0;
+  color: var(--color-text-light);
+  font-size: 0.9em;
+}
+
+.metric-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.metric-tag {
+  background: var(--color-secondary);
+  color: var(--color-text-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.no-workouts {
+  text-align: center;
+  color: var(--color-text-light);
+  padding: 20px;
+  background: var(--color-secondary);
+  border-radius: 4px;
+} 
