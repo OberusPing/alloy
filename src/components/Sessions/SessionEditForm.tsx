@@ -1,12 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import './SessionEditForm.css';
+import { Row, Cell } from 'tinybase';
 
 type WorkoutData = {
   name: string;
   category: string;
   recordMetrics: string;
 };
+
+interface Session extends Row {
+  plannedDate: Cell;
+  workoutName: Cell;
+  completed: Cell;
+  completedDate: Cell;
+  targetMetrics: Cell;
+  actualMetrics: Cell;
+}
 
 type SessionEditFormProps = {
   isOpen: boolean;
@@ -17,83 +27,81 @@ type SessionEditFormProps = {
 export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormProps) => {
   const store = useStore()!;
   const workouts = useTable('workouts') as Record<string, WorkoutData>;
-  const session = store.getRow('sessions', sessionId);
 
-  const [plannedDate, setPlannedDate] = useState(session?.plannedDate || '');
-  const [selectedWorkout, setSelectedWorkout] = useState('');
+  const [plannedDate, setPlannedDate] = useState<string>('');
+  const [selectedWorkout, setSelectedWorkout] = useState<string>('');
   const [targetMetrics, setTargetMetrics] = useState<Record<string, number>>({});
-  const [completed, setCompleted] = useState(session?.completed || false);
-  const [completedDate, setCompletedDate] = useState(session?.completedDate || '');
+  const [completed, setCompleted] = useState<boolean>(false);
+  const [completedDate, setCompletedDate] = useState<string>('');
   const [actualMetrics, setActualMetrics] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    if (session) {
-      // Find workout ID by name
-      const workoutId = Object.entries(workouts).find(
-        ([_, workout]) => workout.name === session.workoutName
-      )?.[0] || '';
-      
-      setSelectedWorkout(workoutId);
-      setPlannedDate(session.plannedDate);
-      setCompleted(session.completed);
-      setCompletedDate(session.completedDate || '');
-      
-      // Parse target metrics
-      const parsedTargetMetrics = JSON.parse(session.targetMetrics);
-      const targetMetricsObj = parsedTargetMetrics.reduce(
-        (acc: Record<string, number>, curr: { name: string; value: number }) => {
-          acc[curr.name] = curr.value;
-          return acc;
-        },
-        {}
-      );
-      setTargetMetrics(targetMetricsObj);
-
-      // Parse actual metrics if they exist
-      if (session.actualMetrics) {
-        const parsedActualMetrics = JSON.parse(session.actualMetrics);
-        const actualMetricsObj = parsedActualMetrics.reduce(
+    if (isOpen) {
+      const session = store.getRow('sessions', sessionId) as Session;
+      if (session) {
+        const workoutId = Object.entries(workouts).find(
+          ([_, workout]) => workout.name === String(session.workoutName)
+        )?.[0] || '';
+        
+        setSelectedWorkout(workoutId);
+        setPlannedDate(String(session.plannedDate));
+        setCompleted(Boolean(session.completed));
+        setCompletedDate(session.completedDate ? String(session.completedDate) : '');
+        
+        // Parse target metrics
+        const parsedTargetMetrics = JSON.parse(String(session.targetMetrics));
+        setTargetMetrics(parsedTargetMetrics.reduce(
           (acc: Record<string, number>, curr: { name: string; value: number }) => {
             acc[curr.name] = curr.value;
             return acc;
           },
           {}
-        );
-        setActualMetrics(actualMetricsObj);
+        ));
+
+        if (session.actualMetrics) {
+          const parsedActualMetrics = JSON.parse(String(session.actualMetrics));
+          setActualMetrics(parsedActualMetrics.reduce(
+            (acc: Record<string, number>, curr: { name: string; value: number }) => {
+              acc[curr.name] = curr.value;
+              return acc;
+            },
+            {}
+          ));
+        }
       }
     }
-  }, [session, workouts]);
+  }, [isOpen, sessionId, store, workouts]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const updatedSession = {
-      plannedDate,
-      workoutName: workouts[selectedWorkout].name,
-      completed,
+    const updatedSession: Record<string, Cell> = {
+      plannedDate: plannedDate as Cell,
+      workoutName: workouts[selectedWorkout].name as Cell,
+      completed: completed as Cell,
       targetMetrics: JSON.stringify(
         Object.entries(targetMetrics).map(([name, value]) => ({
           name,
           value
         }))
-      )
+      ) as Cell
     };
 
     if (completed) {
-      updatedSession.completedDate = completedDate;
+      updatedSession.completedDate = completedDate as Cell;
       updatedSession.actualMetrics = JSON.stringify(
         Object.entries(actualMetrics).map(([name, value]) => ({
           name,
           value
         }))
-      );
+      ) as Cell;
     }
 
     store.setRow('sessions', sessionId, updatedSession);
     onClose();
   };
 
-  if (!isOpen || !session) return null;
+  if (!isOpen) return null;
 
   const selectedWorkoutMetrics = selectedWorkout 
     ? JSON.parse(workouts[selectedWorkout].recordMetrics) 

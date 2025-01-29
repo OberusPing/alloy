@@ -190,8 +190,8 @@ export const AnalyticsView = () => {
   ]);
 
   return (
-    <div className="analytics-view view-container">
-      <div className="analytics-header view-header">
+    <div className="analytics-view">
+      <div className="analytics-header">
         <h2>Analytics</h2>
         <div className="analytics-controls">
           <select 

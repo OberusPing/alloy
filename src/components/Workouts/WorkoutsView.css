@@ -3,13 +3,20 @@
 }
 
 .workouts-view-header {
-  /* Remove composes */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.workouts-view-header h2 {
+  margin: 0;
 }
 
 .filter-controls {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;  /* Add spacing below filters */
+  gap: 1rem;
+  align-items: center;
 }
 
 .filter-controls select {
@@ -88,4 +95,17 @@
   padding: 20px;
   background: var(--color-secondary);
   border-radius: 4px;
+}
+
+.new-workout-button {
+  padding: 0.5rem 1rem;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.new-workout-button:hover {
+  background-color: #1565c0;
 } 

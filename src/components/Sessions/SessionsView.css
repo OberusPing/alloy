@@ -1,7 +1,18 @@
+.sessions-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sessions-view-header h2 {
+  margin: 0;
+}
+
 .filter-controls {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 1rem;
+  align-items: center;
 }
 
 .filter-controls select {
@@ -9,6 +20,19 @@
   border-radius: 4px;
   border: 1px solid var(--color-border);
   background: white;
+}
+
+.new-session-button {
+  padding: 0.5rem 1rem;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.new-session-button:hover {
+  background-color: #1565c0;
 }
 
 .sessions-list {

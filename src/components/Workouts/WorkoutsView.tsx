@@ -1,5 +1,6 @@
 import { useTable } from 'tinybase/ui-react';
 import { useState } from 'react';
+import { WorkoutForm } from './WorkoutForm';
 import './WorkoutsView.css';
 
 type WorkoutData = {
@@ -11,6 +12,7 @@ type WorkoutData = {
 export const WorkoutsView = () => {
   const workouts = useTable('workouts') as Record<string, WorkoutData>;
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [showWorkoutForm, setShowWorkoutForm] = useState(false);
 
   const categories = Array.from(
     new Set(Object.values(workouts).map(workout => workout.category))
@@ -37,8 +39,18 @@ export const WorkoutsView = () => {
               <option key={category} value={category}>{category}</option>
             ))}
           </select>
+          <button
+            className="new-workout-button"
+            onClick={() => setShowWorkoutForm(true)}
+          >
+            New Workout
+          </button>
         </div>
       </div>
+
+      {showWorkoutForm && (
+        <WorkoutForm onClose={() => setShowWorkoutForm(false)} />
+      )}
 
       {filteredWorkouts.length === 0 ? (
         <p className="no-workouts">No workouts found</p>
@@ -53,7 +65,6 @@ export const WorkoutsView = () => {
                   <span className="category-tag">{workout.category}</span>
                 </div>
                 <div className="metrics-list">
-                  <h4>Recorded Metrics:</h4>
                   <div className="metric-tags">
                     {metrics.map((metric: string) => (
                       <span key={metric} className="metric-tag">

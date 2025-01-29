@@ -22,7 +22,10 @@ type Session = {
 export const SessionsView = () => {
   const [timeFrame, setTimeFrame] = useState<TimeFrame>('week');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [selectedWorkout, setSelectedWorkout] = useState('all');
+  const [showSessionForm, setShowSessionForm] = useState(false);
   const sessions = useTable('sessions') as Record<string, Session>;
+  const workouts = useTable('workouts') as Record<string, { name: string }>;
   const [completingSession, setCompletingSession] = useState<{
     id: string;
     workoutName: string;
@@ -39,8 +42,12 @@ export const SessionsView = () => {
     id: string;
     workoutName: string;
   } | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const store = useStore()!;
+
+  // Get unique workout names from the workouts table
+  const workoutNames = Array.from(
+    new Set(Object.values(workouts).map(workout => workout.name))
+  );
 
   const getEndDate = (startDate: Date, timeFrame: TimeFrame): Date => {
     if (timeFrame === 'all') return new Date('2099-12-31');
@@ -74,6 +81,11 @@ export const SessionsView = () => {
         if (statusFilter === 'completed' && !session.completed) return false;
       }
 
+      // Workout filter
+      if (selectedWorkout !== 'all' && session.workoutName !== selectedWorkout) {
+        return false;
+      }
+
       // Time frame filter
       if (timeFrame !== 'all') {
         return sessionDate >= today && sessionDate <= endDate;
@@ -103,35 +115,48 @@ export const SessionsView = () => {
   };
 
   return (
-    <div className="sessions-view view-container">
+    <div className="sessions-view">
       <div className="sessions-view-header">
         <h2>Sessions</h2>
-        <button className="create-session-button" onClick={() => setIsFormOpen(true)}>
-          <span className="button-icon">+</span>
-          Create New Session
-        </button>
         <div className="filter-controls">
+          <select
+            value={selectedWorkout}
+            onChange={(e) => setSelectedWorkout(e.target.value)}
+          >
+            <option value="all">All Workouts</option>
+            {workoutNames.map(name => (
+              <option key={name} value={name}>{name}</option>
+            ))}
+          </select>
           <select 
             value={statusFilter} 
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            className="status-filter"
           >
-            <option value="all">All Sessions</option>
+            <option value="all">All Status</option>
             <option value="planned">Planned</option>
             <option value="completed">Completed</option>
           </select>
           <select 
             value={timeFrame} 
             onChange={(e) => setTimeFrame(e.target.value as TimeFrame)}
-            className="time-filter"
           >
             <option value="day">Next 24 Hours</option>
             <option value="week">Next Week</option>
             <option value="month">Next Month</option>
             <option value="all">All Time</option>
           </select>
+          <button
+            className="new-session-button"
+            onClick={() => setShowSessionForm(true)}
+          >
+            New Session
+          </button>
         </div>
       </div>
+
+      {showSessionForm && (
+        <SessionForm isOpen={showSessionForm} onClose={() => setShowSessionForm(false)} />
+      )}
 
       {filteredSessions.length === 0 ? (
         <p className="no-sessions">No sessions match the current filters</p>
@@ -244,8 +269,6 @@ export const SessionsView = () => {
             : ''
         }
       />
-
-      <SessionForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} />
     </div>
   );
 }; 

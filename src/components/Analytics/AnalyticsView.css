@@ -2,17 +2,28 @@
   min-height: 500px;
 }
 
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.analytics-header h2 {
+  margin: 0;
+}
+
 .analytics-controls {
   display: flex;
-  gap: 15px;
+  gap: 1rem;
+  align-items: center;
 }
 
 .analytics-controls select {
-  padding: 8px 12px;
+  padding: 8px;
   border-radius: 4px;
   border: 1px solid var(--color-border);
   background: white;
-  min-width: 150px;
 }
 
 .date-range-select {
@@ -22,13 +33,7 @@
 .chart-container {
   background: white;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid var(--color-border);
   margin-top: 20px;
-}
-
-.analytics-header h2 {
-  color: var(--color-text);
-  margin: 0;
-  font-size: 1.5rem;
 } 
