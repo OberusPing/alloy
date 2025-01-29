@@ -18,7 +18,6 @@ export const Sidebar = ({ items }: SidebarProps) => {
     <div className="sidebar-layout">
       <nav className="sidebar">
         <div className="sidebar-header">
-          <img src="/favicon.svg" alt="Alloy" className="sidebar-logo" />
           <h1>Alloy</h1>
         </div>
         <ul className="sidebar-menu">
