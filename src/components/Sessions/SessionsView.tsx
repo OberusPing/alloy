@@ -5,52 +5,17 @@ import { SessionCompletionForm } from './SessionCompletionForm';
 import { SessionEditForm } from './SessionEditForm';
 import { ConfirmDialog } from '../ConfirmDialog/ConfirmDialog';
 import { SessionForm } from './SessionForm';
+import { SessionCard } from './SessionCard';
+import { Session, Workout } from './types';
 
 type TimeFrame = 'day' | 'week' | 'month' | 'all';
 type StatusFilter = 'all' | 'planned' | 'completed';
-
-type Session = {
-  plannedDate: string;
-  workouts: string; // JSON string
-  completed: boolean;
-  completedDate?: string;
-  actualMetrics?: string;
-};
-
-type Metric = {
-  name: string;
-  value: number;
-};
-
-type Workout = {
-  workoutName: string;
-  targetMetrics: string;
-};
 
 const getWorkouts = (session: Session): Workout[] => {
   try {
     return JSON.parse(session.workouts);
   } catch (e) {
     console.error('Failed to parse workouts:', e);
-    return [];
-  }
-};
-
-const getTargetMetrics = (workout: Workout): Metric[] => {
-  try {
-    return JSON.parse(workout.targetMetrics);
-  } catch (e) {
-    console.error('Failed to parse target metrics:', e);
-    return [];
-  }
-};
-
-const getActualMetrics = (session: Session): Metric[] => {
-  if (!session.actualMetrics) return [];
-  try {
-    return JSON.parse(session.actualMetrics);
-  } catch (e) {
-    console.error('Failed to parse actual metrics:', e);
     return [];
   }
 };
@@ -196,99 +161,18 @@ export const SessionsView = () => {
         <p className="no-sessions">No sessions match the current filters</p>
       ) : (
         <ul className="sessions-list">
-          {filteredSessions.map(([id, session]) => {
-            const isExpanded = expandedSessions.has(id);
-            
-            return (
-              <li 
-                key={id} 
-                className={`session-item ${session.completed ? 'completed' : 'planned'} ${isExpanded ? 'expanded' : ''}`}
-                onClick={() => toggleSession(id)}
-              >
-                <div className="session-header">
-                  <div className="session-title">
-                    <span className={`status-icon ${session.completed ? 'completed' : 'planned'}`}>
-                      {session.completed ? '✓' : ' '}
-                    </span>
-                    <h3>{getWorkouts(session).map(w => w.workoutName).join(', ')}</h3>
-                  </div>
-                  <span className="planned-date">
-                    {new Date(session.plannedDate).toLocaleDateString()}
-                  </span>
-                  <span className="expand-icon">
-                    {isExpanded ? '▼' : '▶'}
-                  </span>
-                </div>
-
-                {isExpanded && (
-                  <>
-                    <div className="session-details">
-                      <div className="session-dates">
-                        {session.completed && session.completedDate && (
-                          <span className="completed-date">
-                            Completed: {new Date(session.completedDate).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                      <div className="metrics-list">
-                        {getWorkouts(session).map((workout, workoutIndex) => {
-                          const metrics = getTargetMetrics(workout);
-                          const actualMetrics = getActualMetrics(session);
-                          
-                          return (
-                            <div key={workoutIndex} className="workout-metrics">
-                              <h4>{workout.workoutName}</h4>
-                              {metrics.map((metric) => (
-                                <div key={metric.name} className="metric-item">
-                                  <span className="metric-name">{metric.name}</span>
-                                  <div className="metric-values">
-                                    <span className="target-value">Target: {metric.value}</span>
-                                    {session.completed && (
-                                      <span className="actual-value">
-                                        Actual: {actualMetrics.find(m => m.name === metric.name)?.value}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <div className="session-actions" onClick={(e) => e.stopPropagation()}>
-                        {!session.completed && (
-                          <button
-                            className="action-button complete-button"
-                            onClick={() => setCompletingSession({
-                              id,
-                              workouts: getWorkouts(session)
-                            })}
-                          >
-                            Complete
-                          </button>
-                        )}
-                        <button
-                          className="action-button edit-button"
-                          onClick={() => setEditingSessionId(id)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="action-button delete-button"
-                          onClick={() => setDeletingSession({
-                            id,
-                            workoutName: getWorkouts(session).map(w => w.workoutName).join(', ')
-                          })}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </li>
-            );
-          })}
+          {filteredSessions.map(([id, session]) => (
+            <SessionCard
+              key={id}
+              id={id}
+              session={session}
+              isExpanded={expandedSessions.has(id)}
+              onToggle={toggleSession}
+              onComplete={setCompletingSession}
+              onEdit={setEditingSessionId}
+              onDelete={setDeletingSession}
+            />
+          ))}
         </ul>
       )}
       
