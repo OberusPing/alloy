@@ -7,17 +7,17 @@ type SessionCompletionFormProps = {
   onClose: () => void;
   session: {
     id: string;
-    workoutName: string;
-    targetMetrics: string;
+    workouts: Array<{
+      workoutName: string;
+      targetMetrics: string;
+    }>;
   };
 };
 
 export const SessionCompletionForm = ({ isOpen, onClose, session }: SessionCompletionFormProps) => {
   const [completedDate, setCompletedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [metricValues, setMetricValues] = useState<Record<string, number>>({});
+  const [workoutMetrics, setWorkoutMetrics] = useState<Record<string, Record<string, number>>>({});
   const store = useStore()!;
-
-  const targetMetrics = JSON.parse(session.targetMetrics);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,9 +27,12 @@ export const SessionCompletionForm = ({ isOpen, onClose, session }: SessionCompl
       completed: true,
       completedDate,
       actualMetrics: JSON.stringify(
-        targetMetrics.map((metric: { name: string }) => ({
-          name: metric.name,
-          value: metricValues[metric.name] || 0
+        Object.entries(workoutMetrics).map(([workoutName, metrics]) => ({
+          workoutName,
+          metrics: Object.entries(metrics).map(([name, value]) => ({
+            name,
+            value
+          }))
         }))
       )
     });
@@ -43,7 +46,7 @@ export const SessionCompletionForm = ({ isOpen, onClose, session }: SessionCompl
     <div className="modal-overlay">
       <div className="modal-content">
         <button className="close-button" onClick={onClose}>×</button>
-        <h2>Complete Session: {session.workoutName}</h2>
+        <h2>Complete Session</h2>
         <form onSubmit={handleSubmit} className="completion-form">
           <div className="form-group">
             <label htmlFor="completedDate">Completion Date:</label>
@@ -56,27 +59,38 @@ export const SessionCompletionForm = ({ isOpen, onClose, session }: SessionCompl
             />
           </div>
 
-          <div className="metric-inputs">
-            <h3>Actual Metrics</h3>
-            {targetMetrics.map((metric: { name: string, value: number }) => (
-              <div key={metric.name} className="form-group">
-                <label htmlFor={`actual-${metric.name}`}>
-                  {metric.name}:
-                  <span className="target-value">(Target: {metric.value})</span>
-                </label>
-                <input
-                  type="number"
-                  id={`actual-${metric.name}`}
-                  value={metricValues[metric.name] || ''}
-                  onChange={(e) => setMetricValues({
-                    ...metricValues,
-                    [metric.name]: Number(e.target.value)
-                  })}
-                  required
-                />
+          {session.workouts.map((workout) => {
+            const targetMetrics = JSON.parse(workout.targetMetrics);
+            return (
+              <div key={workout.workoutName} className="workout-section">
+                <h3>{workout.workoutName}</h3>
+                <div className="metric-inputs">
+                  <h4>Actual Metrics</h4>
+                  {targetMetrics.map((metric: { name: string, value: number }) => (
+                    <div key={`${workout.workoutName}-${metric.name}`} className="form-group">
+                      <label htmlFor={`actual-${workout.workoutName}-${metric.name}`}>
+                        {metric.name}:
+                        <span className="target-value">(Target: {metric.value})</span>
+                      </label>
+                      <input
+                        type="number"
+                        id={`actual-${workout.workoutName}-${metric.name}`}
+                        value={workoutMetrics[workout.workoutName]?.[metric.name] || ''}
+                        onChange={(e) => setWorkoutMetrics({
+                          ...workoutMetrics,
+                          [workout.workoutName]: {
+                            ...workoutMetrics[workout.workoutName],
+                            [metric.name]: Number(e.target.value)
+                          }
+                        })}
+                        required
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
 
           <button type="submit">Complete Session</button>
         </form>

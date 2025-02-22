@@ -2,7 +2,6 @@ import { useTable, useStore } from 'tinybase/ui-react';
 import { useState } from 'react';
 import './SessionsView.css';
 import { SessionCompletionForm } from './SessionCompletionForm';
-import { ContextMenu } from '../ContextMenu/ContextMenu';
 import { SessionEditForm } from './SessionEditForm';
 import { ConfirmDialog } from '../ConfirmDialog/ConfirmDialog';
 import { SessionForm } from './SessionForm';
@@ -12,24 +11,60 @@ type StatusFilter = 'all' | 'planned' | 'completed';
 
 type Session = {
   plannedDate: string;
-  workoutName: string;
+  workouts: string; // JSON string
   completed: boolean;
   completedDate?: string;
-  targetMetrics: string;
   actualMetrics?: string;
+};
+
+type Metric = {
+  name: string;
+  value: number;
+};
+
+type Workout = {
+  workoutName: string;
+  targetMetrics: string;
+};
+
+const getWorkouts = (session: Session): Workout[] => {
+  try {
+    return JSON.parse(session.workouts);
+  } catch (e) {
+    console.error('Failed to parse workouts:', e);
+    return [];
+  }
+};
+
+const getTargetMetrics = (workout: Workout): Metric[] => {
+  try {
+    return JSON.parse(workout.targetMetrics);
+  } catch (e) {
+    console.error('Failed to parse target metrics:', e);
+    return [];
+  }
+};
+
+const getActualMetrics = (session: Session): Metric[] => {
+  if (!session.actualMetrics) return [];
+  try {
+    return JSON.parse(session.actualMetrics);
+  } catch (e) {
+    console.error('Failed to parse actual metrics:', e);
+    return [];
+  }
 };
 
 export const SessionsView = () => {
   const [timeFrame, setTimeFrame] = useState<TimeFrame>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('planned');
-  const [selectedWorkout, setSelectedWorkout] = useState('all');
-  const [showSessionForm, setShowSessionForm] = useState(false);
+  const [selectedWorkout, setSelectedWorkout] = useState<string>('all');
+  const [showSessionForm, setShowSessionForm] = useState<boolean>(false);
   const sessions = useTable('sessions') as Record<string, Session>;
   const workouts = useTable('workouts') as Record<string, { name: string }>;
   const [completingSession, setCompletingSession] = useState<{
     id: string;
-    workoutName: string;
-    targetMetrics: string;
+    workouts: Workout[];
   } | null>(null);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [deletingSession, setDeletingSession] = useState<{
@@ -67,8 +102,9 @@ export const SessionsView = () => {
   const endDate = getEndDate(today, timeFrame);
 
   const filteredSessions = Object.entries(sessions)
-    .filter(([_, session]) => {
+    .filter(([_, session]: [string, Session]) => {
       const sessionDate = new Date(session.plannedDate);
+      const workouts = getWorkouts(session);
       
       // Status filter
       if (statusFilter !== 'all') {
@@ -77,7 +113,8 @@ export const SessionsView = () => {
       }
 
       // Workout filter
-      if (selectedWorkout !== 'all' && session.workoutName !== selectedWorkout) {
+      if (selectedWorkout !== 'all' && 
+          !workouts.some(w => w.workoutName === selectedWorkout)) {
         return false;
       }
 
@@ -88,18 +125,18 @@ export const SessionsView = () => {
       
       return true;
     })
-    .sort(([_, a], [__, b]) => 
+    .sort(([_, a]: [string, Session], [__, b]: [string, Session]) => 
       new Date(a.plannedDate).getTime() - new Date(b.plannedDate).getTime()
     );
 
-  const handleDeleteSession = () => {
+  const handleDeleteSession = (): void => {
     if (deletingSession) {
       store.delRow('sessions', deletingSession.id);
       setDeletingSession(null);
     }
   };
 
-  const toggleSession = (sessionId: string) => {
+  const toggleSession = (sessionId: string): void => {
     setExpandedSessions(prev => {
       const newSet = new Set(prev);
       if (newSet.has(sessionId)) {
@@ -161,7 +198,6 @@ export const SessionsView = () => {
         <ul className="sessions-list">
           {filteredSessions.map(([id, session]) => {
             const isExpanded = expandedSessions.has(id);
-            const metrics = JSON.parse(session.targetMetrics);
             
             return (
               <li 
@@ -174,7 +210,7 @@ export const SessionsView = () => {
                     <span className={`status-icon ${session.completed ? 'completed' : 'planned'}`}>
                       {session.completed ? '✓' : ' '}
                     </span>
-                    <h3>{session.workoutName}</h3>
+                    <h3>{getWorkouts(session).map(w => w.workoutName).join(', ')}</h3>
                   </div>
                   <span className="planned-date">
                     {new Date(session.plannedDate).toLocaleDateString()}
@@ -195,20 +231,29 @@ export const SessionsView = () => {
                         )}
                       </div>
                       <div className="metrics-list">
-                        {metrics.map((metric: { name: string, value: number }) => (
-                          <div key={metric.name} className="metric-item">
-                            <span className="metric-name">{metric.name}</span>
-                            <div className="metric-values">
-                              <span className="target-value">Target: {metric.value}</span>
-                              {session.completed && session.actualMetrics && (
-                                <span className="actual-value">
-                                  Actual: {JSON.parse(session.actualMetrics)
-                                    .find((m: { name: string }) => m.name === metric.name)?.value}
-                                </span>
-                              )}
+                        {getWorkouts(session).map((workout, workoutIndex) => {
+                          const metrics = getTargetMetrics(workout);
+                          const actualMetrics = getActualMetrics(session);
+                          
+                          return (
+                            <div key={workoutIndex} className="workout-metrics">
+                              <h4>{workout.workoutName}</h4>
+                              {metrics.map((metric) => (
+                                <div key={metric.name} className="metric-item">
+                                  <span className="metric-name">{metric.name}</span>
+                                  <div className="metric-values">
+                                    <span className="target-value">Target: {metric.value}</span>
+                                    {session.completed && (
+                                      <span className="actual-value">
+                                        Actual: {actualMetrics.find(m => m.name === metric.name)?.value}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                       <div className="session-actions" onClick={(e) => e.stopPropagation()}>
                         {!session.completed && (
@@ -216,8 +261,7 @@ export const SessionsView = () => {
                             className="action-button complete-button"
                             onClick={() => setCompletingSession({
                               id,
-                              workoutName: session.workoutName,
-                              targetMetrics: session.targetMetrics
+                              workouts: getWorkouts(session)
                             })}
                           >
                             Complete
@@ -233,7 +277,7 @@ export const SessionsView = () => {
                           className="action-button delete-button"
                           onClick={() => setDeletingSession({
                             id,
-                            workoutName: session.workoutName
+                            workoutName: getWorkouts(session).map(w => w.workoutName).join(', ')
                           })}
                         >
                           Delete

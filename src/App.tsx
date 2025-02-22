@@ -15,14 +15,16 @@ export const App = () => {
       .setTable('sessions', {
         '1': {
           plannedDate: '2025-01-01',
-          workoutName: 'Norwegian 4x4',
+          workouts: JSON.stringify([{
+            workoutName: 'Norwegian 4x4',
+            targetMetrics: JSON.stringify([
+              { name: 'Average Heart Rate', value: 165 },
+              { name: 'Max Heart Rate', value: 182 },
+              { name: 'Duration', value: 45 }
+            ])
+          }]),
           completed: true,
           completedDate: '2025-01-01',
-          targetMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 165 },
-            { name: 'Max Heart Rate', value: 182 },
-            { name: 'Duration', value: 45 }
-          ]),
           actualMetrics: JSON.stringify([
             { name: 'Average Heart Rate', value: 168 },
             { name: 'Max Heart Rate', value: 185 },
@@ -31,14 +33,16 @@ export const App = () => {
         },
         '2': {
           plannedDate: '2025-01-05',
-          workoutName: 'Zone 2 Base',
+          workouts: JSON.stringify([{
+            workoutName: 'Zone 2 Base',
+            targetMetrics: JSON.stringify([
+              { name: 'Average Heart Rate', value: 145 },
+              { name: 'Max Heart Rate', value: 155 },
+              { name: 'Duration', value: 120 }
+            ])
+          }]),
           completed: true,
           completedDate: '2025-01-05',
-          targetMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 145 },
-            { name: 'Max Heart Rate', value: 155 },
-            { name: 'Duration', value: 120 }
-          ]),
           actualMetrics: JSON.stringify([
             { name: 'Average Heart Rate', value: 142 },
             { name: 'Max Heart Rate', value: 152 },
@@ -47,14 +51,26 @@ export const App = () => {
         },
         '3': {
           plannedDate: '2025-01-08',
-          workoutName: 'Threshold Intervals',
+          workouts: JSON.stringify([
+            {
+              workoutName: 'Threshold Intervals',
+              targetMetrics: JSON.stringify([
+                { name: 'Average Heart Rate', value: 172 },
+                { name: 'Max Heart Rate', value: 188 },
+                { name: 'Duration', value: 30 }
+              ])
+            },
+            {
+              workoutName: 'Zone 2 Base',
+              targetMetrics: JSON.stringify([
+                { name: 'Average Heart Rate', value: 145 },
+                { name: 'Max Heart Rate', value: 155 },
+                { name: 'Duration', value: 30 }
+              ])
+            }
+          ]),
           completed: true,
           completedDate: '2025-01-08',
-          targetMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 172 },
-            { name: 'Max Heart Rate', value: 188 },
-            { name: 'Duration', value: 60 }
-          ]),
           actualMetrics: JSON.stringify([
             { name: 'Average Heart Rate', value: 175 },
             { name: 'Max Heart Rate', value: 189 },
@@ -63,14 +79,16 @@ export const App = () => {
         },
         '4': {
           plannedDate: '2025-01-12',
-          workoutName: 'Norwegian 4x4',
+          workouts: JSON.stringify([{
+            workoutName: 'Norwegian 4x4',
+            targetMetrics: JSON.stringify([
+              { name: 'Average Heart Rate', value: 165 },
+              { name: 'Max Heart Rate', value: 182 },
+              { name: 'Duration', value: 45 }
+            ])
+          }]),
           completed: true,
           completedDate: '2025-01-12',
-          targetMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 165 },
-            { name: 'Max Heart Rate', value: 182 },
-            { name: 'Duration', value: 45 }
-          ]),
           actualMetrics: JSON.stringify([
             { name: 'Average Heart Rate', value: 171 },
             { name: 'Max Heart Rate', value: 187 },
@@ -79,14 +97,16 @@ export const App = () => {
         },
         '5': {
           plannedDate: '2025-01-15',
-          workoutName: 'Zone 2 Base',
+          workouts: JSON.stringify([{
+            workoutName: 'Zone 2 Base',
+            targetMetrics: JSON.stringify([
+              { name: 'Average Heart Rate', value: 145 },
+              { name: 'Max Heart Rate', value: 155 },
+              { name: 'Duration', value: 120 }
+            ])
+          }]),
           completed: true,
           completedDate: '2025-01-15',
-          targetMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 145 },
-            { name: 'Max Heart Rate', value: 155 },
-            { name: 'Duration', value: 120 }
-          ]),
           actualMetrics: JSON.stringify([
             { name: 'Average Heart Rate', value: 144 },
             { name: 'Max Heart Rate', value: 154 },
@@ -95,14 +115,16 @@ export const App = () => {
         },
         '6': {
           plannedDate: '2025-01-18',
-          workoutName: 'Threshold Intervals',
+          workouts: JSON.stringify([{
+            workoutName: 'Threshold Intervals',
+            targetMetrics: JSON.stringify([
+              { name: 'Average Heart Rate', value: 172 },
+              { name: 'Max Heart Rate', value: 188 },
+              { name: 'Duration', value: 60 }
+            ])
+          }]),
           completed: true,
           completedDate: '2025-01-18',
-          targetMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 172 },
-            { name: 'Max Heart Rate', value: 188 },
-            { name: 'Duration', value: 60 }
-          ]),
           actualMetrics: JSON.stringify([
             { name: 'Average Heart Rate', value: 173 },
             { name: 'Max Heart Rate', value: 190 },
@@ -111,13 +133,15 @@ export const App = () => {
         },
         '7': {
           plannedDate: '2025-01-29',
-          workoutName: 'Norwegian 4x4',
-          completed: false,
-          targetMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 165 },
-            { name: 'Max Heart Rate', value: 182 },
-            { name: 'Duration', value: 45 }
-          ])
+          workouts: JSON.stringify([{
+            workoutName: 'Norwegian 4x4',
+            targetMetrics: JSON.stringify([
+              { name: 'Average Heart Rate', value: 165 },
+              { name: 'Max Heart Rate', value: 182 },
+              { name: 'Duration', value: 45 }
+            ])
+          }]),
+          completed: false
         }
       }).setTable('workouts', {
         '1': {
