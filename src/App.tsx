@@ -1,7 +1,8 @@
-import { StrictMode } from 'react';
+import { StrictMode, useEffect } from 'react';
 import { createStore } from 'tinybase';
 import { Provider, useCreateStore } from 'tinybase/ui-react';
 import { Inspector } from 'tinybase/ui-react-inspector';
+import { createLocalPersister } from 'tinybase/persisters/persister-browser';
 import { SessionsView } from './components/Sessions/SessionsView';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { WorkoutsView } from './components/Workouts/WorkoutsView';
@@ -161,6 +162,15 @@ export const App = () => {
         }
       });
   });
+
+  useEffect(() => {
+    const setupPersistence = async () => {
+      const persister = createLocalPersister(store, 'fitness-tracker');
+      await persister.startAutoLoad();
+      await persister.startAutoSave();
+    };
+    setupPersistence();
+  }, [store]);
 
   const sidebarItems = [
     {
