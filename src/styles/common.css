@@ -56,17 +56,17 @@
 .form-group label {
   display: block;
   margin-bottom: 5px;
-  color: #bbb;
+  color: var(--color-text-light);
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
   padding: 8px;
-  background: #333;
-  border: 1px solid #444;
+  background: white;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  color: #fff;
+  color: var(--color-text);
 }
 
 /* Common Button Styles */
@@ -80,12 +80,12 @@
 }
 
 .btn-primary {
-  background: #444;
-  color: #fff;
+  background: var(--color-primary);
+  color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #555;
+  background: var(--color-primary-hover);
 }
 
 .btn-danger {
@@ -132,14 +132,14 @@
 .metric-inputs {
   margin-top: 20px;
   padding: 15px;
-  background: #f8f9fa;
+  background: var(--color-secondary);
   border-radius: 4px;
 }
 
 .metric-inputs h3 {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #bbb;
+  color: var(--color-text-light);
 }
 
 /* Add to existing common form styles */
