@@ -20,8 +20,8 @@ type Session = {
 };
 
 export const SessionsView = () => {
-  const [timeFrame, setTimeFrame] = useState<TimeFrame>('week');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [timeFrame, setTimeFrame] = useState<TimeFrame>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('planned');
   const [selectedWorkout, setSelectedWorkout] = useState('all');
   const [showSessionForm, setShowSessionForm] = useState(false);
   const sessions = useTable('sessions') as Record<string, Session>;
@@ -31,18 +31,13 @@ export const SessionsView = () => {
     workoutName: string;
     targetMetrics: string;
   } | null>(null);
-  const [contextMenu, setContextMenu] = useState<{
-    x: number;
-    y: number;
-    sessionId: string;
-    session: Session;
-  } | null>(null);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [deletingSession, setDeletingSession] = useState<{
     id: string;
     workoutName: string;
   } | null>(null);
   const store = useStore()!;
+  const [expandedSessions, setExpandedSessions] = useState<Set<string>>(new Set());
 
   // Get unique workout names from the workouts table
   const workoutNames = Array.from(
@@ -97,21 +92,23 @@ export const SessionsView = () => {
       new Date(a.plannedDate).getTime() - new Date(b.plannedDate).getTime()
     );
 
-  const handleContextMenu = (e: React.MouseEvent, id: string, session: Session) => {
-    e.preventDefault();
-    setContextMenu({
-      x: e.clientX,
-      y: e.clientY,
-      sessionId: id,
-      session
-    });
-  };
-
   const handleDeleteSession = () => {
     if (deletingSession) {
       store.delRow('sessions', deletingSession.id);
       setDeletingSession(null);
     }
+  };
+
+  const toggleSession = (sessionId: string) => {
+    setExpandedSessions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sessionId)) {
+        newSet.delete(sessionId);
+      } else {
+        newSet.add(sessionId);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -163,12 +160,14 @@ export const SessionsView = () => {
       ) : (
         <ul className="sessions-list">
           {filteredSessions.map(([id, session]) => {
+            const isExpanded = expandedSessions.has(id);
             const metrics = JSON.parse(session.targetMetrics);
+            
             return (
               <li 
                 key={id} 
-                className={`session-item ${session.completed ? 'completed' : 'planned'}`}
-                onContextMenu={(e) => handleContextMenu(e, id, session)}
+                className={`session-item ${session.completed ? 'completed' : 'planned'} ${isExpanded ? 'expanded' : ''}`}
+                onClick={() => toggleSession(id)}
               >
                 <div className="session-header">
                   <div className="session-title">
@@ -177,69 +176,76 @@ export const SessionsView = () => {
                     </span>
                     <h3>{session.workoutName}</h3>
                   </div>
-                  <div className="session-dates">
-                    <span className="planned-date">
-                      Planned: {new Date(session.plannedDate).toLocaleDateString()}
-                    </span>
-                    {session.completed && session.completedDate && (
-                      <span className="completed-date">
-                        Completed: {new Date(session.completedDate).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
+                  <span className="planned-date">
+                    {new Date(session.plannedDate).toLocaleDateString()}
+                  </span>
+                  <span className="expand-icon">
+                    {isExpanded ? '▼' : '▶'}
+                  </span>
                 </div>
-                <div className="metrics-list">
-                  {metrics.map((metric: { name: string, value: number }) => (
-                    <div key={metric.name} className="metric-item">
-                      <span className="metric-name">{metric.name}</span>
-                      <div className="metric-values">
-                        <span className="target-value">Target: {metric.value}</span>
-                        {session.completed && session.actualMetrics && (
-                          <span className="actual-value">
-                            Actual: {JSON.parse(session.actualMetrics)
-                              .find((m: { name: string }) => m.name === metric.name)?.value}
+
+                {isExpanded && (
+                  <>
+                    <div className="session-details">
+                      <div className="session-dates">
+                        {session.completed && session.completedDate && (
+                          <span className="completed-date">
+                            Completed: {new Date(session.completedDate).toLocaleDateString()}
                           </span>
                         )}
                       </div>
+                      <div className="metrics-list">
+                        {metrics.map((metric: { name: string, value: number }) => (
+                          <div key={metric.name} className="metric-item">
+                            <span className="metric-name">{metric.name}</span>
+                            <div className="metric-values">
+                              <span className="target-value">Target: {metric.value}</span>
+                              {session.completed && session.actualMetrics && (
+                                <span className="actual-value">
+                                  Actual: {JSON.parse(session.actualMetrics)
+                                    .find((m: { name: string }) => m.name === metric.name)?.value}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="session-actions" onClick={(e) => e.stopPropagation()}>
+                        {!session.completed && (
+                          <button
+                            className="action-button complete-button"
+                            onClick={() => setCompletingSession({
+                              id,
+                              workoutName: session.workoutName,
+                              targetMetrics: session.targetMetrics
+                            })}
+                          >
+                            Complete
+                          </button>
+                        )}
+                        <button
+                          className="action-button edit-button"
+                          onClick={() => setEditingSessionId(id)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="action-button delete-button"
+                          onClick={() => setDeletingSession({
+                            id,
+                            workoutName: session.workoutName
+                          })}
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  </>
+                )}
               </li>
             );
           })}
         </ul>
-      )}
-      
-      {contextMenu && (
-        <ContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onClose={() => setContextMenu(null)}
-          items={[
-            ...(contextMenu.session.completed 
-              ? []
-              : [{
-                  label: 'Mark as Completed',
-                  onClick: () => setCompletingSession({
-                    id: contextMenu.sessionId,
-                    workoutName: contextMenu.session.workoutName,
-                    targetMetrics: contextMenu.session.targetMetrics
-                  })
-                }]
-            ),
-            {
-              label: 'Edit Session',
-              onClick: () => setEditingSessionId(contextMenu.sessionId)
-            },
-            {
-              label: 'Delete Session',
-              onClick: () => setDeletingSession({
-                id: contextMenu.sessionId,
-                workoutName: contextMenu.session.workoutName
-              })
-            }
-          ]}
-        />
       )}
       
       {completingSession && (
