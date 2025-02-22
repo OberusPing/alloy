@@ -65,4 +65,46 @@
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
+}
+
+.workout-select-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.workout-select-group select {
+  flex: 1;
+  padding: 8px;
+}
+
+.workout-section {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.workout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.workout-header h3 {
+  margin: 0;
+}
+
+.remove-workout {
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.remove-workout:hover {
+  background-color: #cc0000;
 } 

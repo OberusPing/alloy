@@ -11,7 +11,7 @@ type WorkoutData = {
 
 interface SessionWorkout {
   workoutName: string;
-  targetMetrics: string;
+  targetMetrics: Array<{ name: string; value: number }>;
 }
 
 interface Session extends Row {
@@ -57,8 +57,8 @@ export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormP
         // Set target metrics for each workout
         const targetMetricsMap: Record<string, Record<string, number>> = {};
         sessionWorkouts.forEach((sw: SessionWorkout) => {
-          const parsedMetrics = JSON.parse(sw.targetMetrics);
-          targetMetricsMap[sw.workoutName] = parsedMetrics.reduce(
+          const metrics = Array.isArray(sw.targetMetrics) ? sw.targetMetrics : [];
+          targetMetricsMap[sw.workoutName] = metrics.reduce(
             (acc: Record<string, number>, curr: { name: string; value: number }) => {
               acc[curr.name] = curr.value;
               return acc;

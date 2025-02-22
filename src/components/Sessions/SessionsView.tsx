@@ -46,7 +46,7 @@ export const SessionsView = () => {
 
   const getEndDate = (startDate: Date, timeFrame: TimeFrame): Date => {
     if (timeFrame === 'all') return new Date('2099-12-31');
-    
+
     const endDate = new Date(startDate);
     switch (timeFrame) {
       case 'day':
@@ -70,7 +70,7 @@ export const SessionsView = () => {
     .filter(([_, session]: [string, Session]) => {
       const sessionDate = new Date(session.plannedDate);
       const workouts = getWorkouts(session);
-      
+
       // Status filter
       if (statusFilter !== 'all') {
         if (statusFilter === 'planned' && session.completed) return false;
@@ -78,8 +78,8 @@ export const SessionsView = () => {
       }
 
       // Workout filter
-      if (selectedWorkout !== 'all' && 
-          !workouts.some(w => w.workoutName === selectedWorkout)) {
+      if (selectedWorkout !== 'all' &&
+        !workouts.some(w => w.workoutName === selectedWorkout)) {
         return false;
       }
 
@@ -87,10 +87,10 @@ export const SessionsView = () => {
       if (timeFrame !== 'all') {
         return sessionDate >= today && sessionDate <= endDate;
       }
-      
+
       return true;
     })
-    .sort(([_, a]: [string, Session], [__, b]: [string, Session]) => 
+    .sort(([_, a]: [string, Session], [__, b]: [string, Session]) =>
       new Date(a.plannedDate).getTime() - new Date(b.plannedDate).getTime()
     );
 
@@ -127,16 +127,16 @@ export const SessionsView = () => {
               <option key={name} value={name}>{name}</option>
             ))}
           </select>
-          <select 
-            value={statusFilter} 
+          <select
+            value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
           >
             <option value="all">All Status</option>
             <option value="planned">Planned</option>
             <option value="completed">Completed</option>
           </select>
-          <select 
-            value={timeFrame} 
+          <select
+            value={timeFrame}
             onChange={(e) => setTimeFrame(e.target.value as TimeFrame)}
           >
             <option value="day">Next 24 Hours</option>
@@ -175,7 +175,7 @@ export const SessionsView = () => {
           ))}
         </ul>
       )}
-      
+
       {completingSession && (
         <SessionCompletionForm
           isOpen={!!completingSession}
@@ -183,7 +183,7 @@ export const SessionsView = () => {
           session={completingSession}
         />
       )}
-      
+
       {editingSessionId && (
         <SessionEditForm
           isOpen={!!editingSessionId}
@@ -198,7 +198,7 @@ export const SessionsView = () => {
         onConfirm={handleDeleteSession}
         title="Delete Session"
         message={
-          deletingSession 
+          deletingSession
             ? `Are you sure you want to delete the session "${deletingSession.workoutName}"? This action cannot be undone.`
             : ''
         }

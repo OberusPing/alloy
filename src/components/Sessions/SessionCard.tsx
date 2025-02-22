@@ -21,12 +21,8 @@ const getWorkouts = (session: Session): Workout[] => {
 };
 
 const getTargetMetrics = (workout: Workout): Metric[] => {
-  try {
-    return JSON.parse(workout.targetMetrics);
-  } catch (e) {
-    console.error('Failed to parse target metrics:', e);
-    return [];
-  }
+  if (!workout.targetMetrics) return [];
+  return Array.isArray(workout.targetMetrics) ? workout.targetMetrics : [];
 };
 
 const getActualMetrics = (session: Session): Metric[] => {
