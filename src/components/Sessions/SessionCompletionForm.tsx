@@ -9,7 +9,7 @@ type SessionCompletionFormProps = {
     id: string;
     workouts: Array<{
       workoutName: string;
-      targetMetrics: string;
+      targetMetrics: Array<{ name: string; value: number }>;
     }>;
   };
 };
@@ -60,13 +60,13 @@ export const SessionCompletionForm = ({ isOpen, onClose, session }: SessionCompl
           </div>
 
           {session.workouts.map((workout) => {
-            const targetMetrics = JSON.parse(workout.targetMetrics);
+            const targetMetrics = workout.targetMetrics;
             return (
               <div key={workout.workoutName} className="workout-section">
                 <h3>{workout.workoutName}</h3>
                 <div className="metric-inputs">
                   <h4>Actual Metrics</h4>
-                  {targetMetrics.map((metric: { name: string, value: number }) => (
+                  {targetMetrics.map((metric) => (
                     <div key={`${workout.workoutName}-${metric.name}`} className="form-group">
                       <label htmlFor={`actual-${workout.workoutName}-${metric.name}`}>
                         {metric.name}:

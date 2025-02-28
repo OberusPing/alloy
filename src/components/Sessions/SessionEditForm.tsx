@@ -46,12 +46,12 @@ export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormP
         setPlannedDate(String(session.plannedDate));
         setCompleted(Boolean(session.completed));
         setCompletedDate(session.completedDate ? String(session.completedDate) : '');
-        
+
         const sessionWorkouts = JSON.parse(String(session.workouts));
-        const workoutIds = sessionWorkouts.map((sw: SessionWorkout) => 
+        const workoutIds = sessionWorkouts.map((sw: SessionWorkout) =>
           Object.entries(workouts).find(([_, w]) => w.name === sw.workoutName)?.[0]
         ).filter(Boolean);
-        
+
         setSelectedWorkouts(workoutIds);
 
         // Set target metrics for each workout
@@ -93,12 +93,10 @@ export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormP
       const workout = workouts[workoutId];
       return {
         workoutName: workout.name,
-        targetMetrics: JSON.stringify(
-          Object.entries(workoutTargetMetrics[workout.name] || {}).map(([name, value]) => ({
-            name,
-            value
-          }))
-        )
+        targetMetrics: Object.entries(workoutTargetMetrics[workout.name] || {}).map(([name, value]) => ({
+          name,
+          value
+        }))
       };
     });
 

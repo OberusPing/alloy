@@ -27,8 +27,36 @@ const getTargetMetrics = (workout: Workout): Metric[] => {
 
 const getActualMetrics = (session: Session): Metric[] => {
   if (!session.actualMetrics) return [];
+  
+  // If it's already an array, return it
+  if (Array.isArray(session.actualMetrics)) return session.actualMetrics;
+  
   try {
-    return JSON.parse(session.actualMetrics);
+    // If it's a string, try to parse it
+    let parsed = typeof session.actualMetrics === 'string' 
+      ? JSON.parse(session.actualMetrics) 
+      : session.actualMetrics;
+    
+    // Handle the case where it's an array of workouts with metrics
+    if (Array.isArray(parsed)) {
+      return parsed.flatMap(workout => {
+        // Check if workout has metrics property and it's an array
+        if (workout.metrics && Array.isArray(workout.metrics)) {
+          return workout.metrics.map((metric: { name: string; value: any }) => ({
+            name: metric.name,
+            value: metric.value
+          }));
+        }
+        return [];
+      });
+    }
+    
+    // Handle the case where it's a direct metrics array
+    if (parsed.metrics && Array.isArray(parsed.metrics)) {
+      return parsed.metrics;
+    }
+    
+    return [];
   } catch (e) {
     console.error('Failed to parse actual metrics:', e);
     return [];
@@ -81,19 +109,26 @@ export const SessionCard: React.FC<SessionCardProps> = ({
               return (
                 <div key={workoutIndex} className="workout-metrics">
                   <h4>{workout.workoutName}</h4>
-                  {metrics.map((metric) => (
-                    <div key={metric.name} className="metric-item">
-                      <span className="metric-name">{metric.name}</span>
-                      <div className="metric-values">
-                        <span className="target-value">Target: {metric.value}</span>
-                        {session.completed && (
-                          <span className="actual-value">
-                            Actual: {actualMetrics.find(m => m.name === metric.name)?.value}
-                          </span>
-                        )}
+                  {metrics.map((metric) => {
+                    // Find the matching actual metric more reliably
+                    const actualMetric = session.completed 
+                      ? actualMetrics.find(m => m.name === metric.name)
+                      : null;
+                    
+                    return (
+                      <div key={metric.name} className="metric-item">
+                        <span className="metric-name">{metric.name}</span>
+                        <div className="metric-values">
+                          <span className="target-value">Target: {metric.value}</span>
+                          {session.completed && (
+                            <span className="actual-value">
+                              Actual: {actualMetric?.value !== undefined ? actualMetric.value : 'N/A'}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               );
             })}

@@ -11,7 +11,7 @@ export type Metric = {
   value: number;
 };
 
-export type Workout = {
+export type Workout ={
   workoutName: string;
-  targetMetrics: string;
-}; 
+  targetMetrics: Metric[];
+} 
