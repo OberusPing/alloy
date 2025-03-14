@@ -2,30 +2,26 @@ import { useState, useEffect } from 'react';
 import { useStore, useTable } from 'tinybase/ui-react';
 import './SessionEditForm.css';
 import { Row, Cell } from 'tinybase';
+import { WorkoutSet } from './types';
 
 type WorkoutData = {
   name: string;
   category: string;
-  recordMetrics: string;
+  recordMetrics: string; // JSON string of metrics
 };
-
-interface SessionWorkout {
-  workoutName: string;
-  targetMetrics: Array<{ name: string; value: number }>;
-}
-
-interface Session extends Row {
-  plannedDate: Cell;
-  workouts: Cell; // JSON string of SessionWorkout[]
-  completed: Cell;
-  completedDate: Cell;
-  actualMetrics: Cell;
-}
 
 type SessionEditFormProps = {
   isOpen: boolean;
   onClose: () => void;
   sessionId: string;
+};
+
+type WorkoutMetricsState = {
+  [workoutName: string]: {
+    sets: Array<{
+      [metricName: string]: number;
+    }>;
+  };
 };
 
 export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormProps) => {
@@ -34,51 +30,52 @@ export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormP
 
   const [plannedDate, setPlannedDate] = useState<string>('');
   const [selectedWorkouts, setSelectedWorkouts] = useState<string[]>([]);
-  const [workoutTargetMetrics, setWorkoutTargetMetrics] = useState<Record<string, Record<string, number>>>({});
+  const [workoutTargetMetrics, setWorkoutTargetMetrics] = useState<WorkoutMetricsState>({});
   const [completed, setCompleted] = useState<boolean>(false);
   const [completedDate, setCompletedDate] = useState<string>('');
-  const [workoutActualMetrics, setWorkoutActualMetrics] = useState<Record<string, Record<string, number>>>({});
+  const [workoutActualMetrics, setWorkoutActualMetrics] = useState<WorkoutMetricsState>({});
 
   useEffect(() => {
     if (isOpen) {
-      const session = store.getRow('sessions', sessionId) as Session;
+      const session = store.getRow('sessions', sessionId);
       if (session) {
         setPlannedDate(String(session.plannedDate));
         setCompleted(Boolean(session.completed));
         setCompletedDate(session.completedDate ? String(session.completedDate) : '');
 
-        const sessionWorkouts = JSON.parse(String(session.workouts));
-        const workoutIds = sessionWorkouts.map((sw: SessionWorkout) =>
-          Object.entries(workouts).find(([_, w]) => w.name === sw.workoutName)?.[0]
-        ).filter(Boolean);
+        const sessionWorkouts = JSON.parse(String(session.workouts)) as WorkoutSet[];
+        const workoutIds = sessionWorkouts
+          .map(sw => Object.entries(workouts).find(([_, w]) => w.name === sw.workoutName)?.[0])
+          .filter((id): id is string => id !== undefined);
 
         setSelectedWorkouts(workoutIds);
 
         // Set target metrics for each workout
-        const targetMetricsMap: Record<string, Record<string, number>> = {};
-        sessionWorkouts.forEach((sw: SessionWorkout) => {
-          const metrics = Array.isArray(sw.targetMetrics) ? sw.targetMetrics : [];
-          targetMetricsMap[sw.workoutName] = metrics.reduce(
-            (acc: Record<string, number>, curr: { name: string; value: number }) => {
-              acc[curr.name] = curr.value;
-              return acc;
-            },
-            {}
-          );
+        const targetMetricsMap: WorkoutMetricsState = {};
+        sessionWorkouts.forEach(sw => {
+          targetMetricsMap[sw.workoutName] = {
+            sets: sw.sets.map(set => ({
+              ...set.targetMetrics.reduce((acc, curr) => {
+                acc[curr.name] = curr.value;
+                return acc;
+              }, {} as Record<string, number>)
+            }))
+          };
         });
         setWorkoutTargetMetrics(targetMetricsMap);
 
         if (session.actualMetrics) {
           const parsedActualMetrics = JSON.parse(String(session.actualMetrics));
-          const actualMetricsMap: Record<string, Record<string, number>> = {};
-          parsedActualMetrics.forEach((wm: { workoutName: string, metrics: Array<{ name: string, value: number }> }) => {
-            actualMetricsMap[wm.workoutName] = wm.metrics.reduce(
-              (acc: Record<string, number>, curr: { name: string; value: number }) => {
-                acc[curr.name] = curr.value;
-                return acc;
-              },
-              {}
-            );
+          const actualMetricsMap: WorkoutMetricsState = {};
+          parsedActualMetrics.forEach((wm: { workoutName: string, sets: Array<{ metrics: Array<{ name: string, value: number }> }> }) => {
+            actualMetricsMap[wm.workoutName] = {
+              sets: wm.sets.map(set => ({
+                ...set.metrics.reduce((acc, curr) => {
+                  acc[curr.name] = curr.value;
+                  return acc;
+                }, {} as Record<string, number>)
+              }))
+            };
           });
           setWorkoutActualMetrics(actualMetricsMap);
         }
@@ -93,30 +90,34 @@ export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormP
       const workout = workouts[workoutId];
       return {
         workoutName: workout.name,
-        targetMetrics: Object.entries(workoutTargetMetrics[workout.name] || {}).map(([name, value]) => ({
-          name,
-          value
-        }))
-      };
-    });
-
-    const updatedSession: Record<string, Cell> = {
-      plannedDate: plannedDate as Cell,
-      workouts: JSON.stringify(sessionWorkouts) as Cell,
-      completed: completed as Cell,
-    };
-
-    if (completed) {
-      updatedSession.completedDate = completedDate as Cell;
-      updatedSession.actualMetrics = JSON.stringify(
-        Object.entries(workoutActualMetrics).map(([workoutName, metrics]) => ({
-          workoutName,
-          metrics: Object.entries(metrics).map(([name, value]) => ({
+        sets: workoutTargetMetrics[workout.name]?.sets.map(set => ({
+          targetMetrics: Object.entries(set).map(([name, value]) => ({
             name,
             value
           }))
+        })) || []
+      };
+    });
+
+    const updatedSession: Record<string, any> = {
+      plannedDate: plannedDate,
+      workouts: JSON.stringify(sessionWorkouts),
+      completed: completed,
+    };
+
+    if (completed) {
+      updatedSession.completedDate = completedDate;
+      updatedSession.actualMetrics = JSON.stringify(
+        Object.entries(workoutActualMetrics).map(([workoutName, data]) => ({
+          workoutName,
+          sets: data.sets.map(set => ({
+            metrics: Object.entries(set).map(([name, value]) => ({
+              name,
+              value
+            }))
+          }))
         }))
-      ) as Cell;
+      );
     }
 
     store.setRow('sessions', sessionId, updatedSession);
@@ -144,9 +145,9 @@ export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormP
 
           <div className="form-group">
             <label>Workouts:</label>
-            <div className="workout-selector">
+            <div className="workout-checkboxes">
               {Object.entries(workouts).map(([id, workout]) => (
-                <label key={id} className="workout-checkbox">
+                <label key={id} className="checkbox-label">
                   <input
                     type="checkbox"
                     checked={selectedWorkouts.includes(id)}
@@ -157,10 +158,12 @@ export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormP
                         const metrics = JSON.parse(workout.recordMetrics);
                         setWorkoutTargetMetrics(prev => ({
                           ...prev,
-                          [workout.name]: metrics.reduce((acc: Record<string, number>, metric: string) => {
-                            acc[metric] = 0;
-                            return acc;
-                          }, {})
+                          [workout.name]: {
+                            sets: [metrics.reduce((acc: Record<string, number>, metric: string) => {
+                              acc[metric] = 0;
+                              return acc;
+                            }, {})]
+                          }
                         }));
                       } else {
                         setSelectedWorkouts(selectedWorkouts.filter(w => w !== id));
@@ -186,24 +189,56 @@ export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormP
                 return (
                   <div key={workout.name} className="workout-section">
                     <h4>{workout.name}</h4>
-                    {metrics.map((metricName: string) => (
-                      <div key={`${workout.name}-${metricName}`} className="form-group">
-                        <label htmlFor={`target-${workout.name}-${metricName}`}>{metricName}:</label>
-                        <input
-                          type="number"
-                          id={`target-${workout.name}-${metricName}`}
-                          value={workoutTargetMetrics[workout.name]?.[metricName] || ''}
-                          onChange={(e) => setWorkoutTargetMetrics({
-                            ...workoutTargetMetrics,
-                            [workout.name]: {
-                              ...workoutTargetMetrics[workout.name],
-                              [metricName]: Number(e.target.value)
-                            }
-                          })}
-                          required
-                        />
+                    {workoutTargetMetrics[workout.name]?.sets.map((set, setIndex) => (
+                      <div key={setIndex} className="set-section">
+                        <h5>Set {setIndex + 1}</h5>
+                        {metrics.map((metricName: string) => (
+                          <div key={`${workout.name}-${setIndex}-${metricName}`} className="form-group">
+                            <label htmlFor={`target-${workout.name}-${setIndex}-${metricName}`}>{metricName}:</label>
+                            <input
+                              type="number"
+                              id={`target-${workout.name}-${setIndex}-${metricName}`}
+                              value={set[metricName] || ''}
+                              onChange={(e) => {
+                                const newValue = Number(e.target.value);
+                                setWorkoutTargetMetrics(current => ({
+                                  ...current,
+                                  [workout.name]: {
+                                    sets: current[workout.name].sets.map((s, i) =>
+                                      i === setIndex
+                                        ? { ...s, [metricName]: newValue }
+                                        : s
+                                    )
+                                  }
+                                }));
+                              }}
+                              required
+                            />
+                          </div>
+                        ))}
                       </div>
                     ))}
+                    <button
+                      type="button"
+                      className="add-set"
+                      onClick={() => {
+                        const metrics = JSON.parse(workout.recordMetrics);
+                        setWorkoutTargetMetrics(current => ({
+                          ...current,
+                          [workout.name]: {
+                            sets: [
+                              ...(current[workout.name]?.sets || []),
+                              metrics.reduce((acc: Record<string, number>, metric: string) => {
+                                acc[metric] = 0;
+                                return acc;
+                              }, {})
+                            ]
+                          }
+                        }));
+                      }}
+                    >
+                      Add Set
+                    </button>
                   </div>
                 );
               })}
@@ -242,27 +277,33 @@ export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormP
                   return (
                     <div key={workout.name} className="workout-section">
                       <h4>{workout.name}</h4>
-                      {metrics.map((metricName: string) => (
-                        <div key={`${workout.name}-${metricName}`} className="form-group">
-                          <label htmlFor={`actual-${workout.name}-${metricName}`}>
-                            {metricName}:
-                            <span className="target-value">
-                              (Target: {workoutTargetMetrics[workout.name]?.[metricName]})
-                            </span>
-                          </label>
-                          <input
-                            type="number"
-                            id={`actual-${workout.name}-${metricName}`}
-                            value={workoutActualMetrics[workout.name]?.[metricName] || ''}
-                            onChange={(e) => setWorkoutActualMetrics({
-                              ...workoutActualMetrics,
-                              [workout.name]: {
-                                ...workoutActualMetrics[workout.name],
-                                [metricName]: Number(e.target.value)
-                              }
-                            })}
-                            required
-                          />
+                      {workoutTargetMetrics[workout.name]?.sets.map((set, setIndex) => (
+                        <div key={setIndex} className="set-section">
+                          <h5>Set {setIndex + 1}</h5>
+                          {metrics.map((metricName: string) => (
+                            <div key={`${workout.name}-${setIndex}-${metricName}`} className="form-group">
+                              <label htmlFor={`actual-${workout.name}-${setIndex}-${metricName}`}>{metricName}:</label>
+                              <input
+                                type="number"
+                                id={`actual-${workout.name}-${setIndex}-${metricName}`}
+                                value={workoutActualMetrics[workout.name]?.sets[setIndex]?.[metricName] || ''}
+                                onChange={(e) => {
+                                  const newValue = Number(e.target.value);
+                                  setWorkoutActualMetrics(current => ({
+                                    ...current,
+                                    [workout.name]: {
+                                      sets: (current[workout.name]?.sets || []).map((s, i) =>
+                                        i === setIndex
+                                          ? { ...s, [metricName]: newValue }
+                                          : s
+                                      )
+                                    }
+                                  }));
+                                }}
+                                required
+                              />
+                            </div>
+                          ))}
                         </div>
                       ))}
                     </div>
@@ -272,10 +313,7 @@ export const SessionEditForm = ({ isOpen, onClose, sessionId }: SessionEditFormP
             </>
           )}
 
-          <div className="form-actions">
-            <button type="submit" className="primary">Save Changes</button>
-            <button type="button" onClick={onClose} className="secondary">Cancel</button>
-          </div>
+          <button type="submit">Save Changes</button>
         </form>
       </div>
     </div>

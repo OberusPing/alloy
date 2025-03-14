@@ -107,4 +107,171 @@
 
 .remove-workout:hover {
   background-color: #cc0000;
-} 
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--color-background);
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--color-text-light);
+}
+
+.close-button:hover {
+  color: var(--color-text);
+}
+
+.session-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--color-text-light);
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text);
+}
+
+.workout-section {
+  background: var(--color-secondary);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.workout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.workout-header h3 {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.remove-workout {
+  background: var(--color-error);
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.remove-workout:hover {
+  background: var(--color-error-dark);
+}
+
+.set-section {
+  background: var(--color-background);
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.set-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.set-header h4 {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.remove-set {
+  background: var(--color-error);
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.remove-set:hover {
+  background: var(--color-error-dark);
+}
+
+.metric-inputs {
+  display: grid;
+  gap: 10px;
+}
+
+.add-set {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.add-set:hover {
+  background: var(--color-primary-dark);
+}
+
+button[type="submit"] {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button[type="submit"]:hover {
+  background: var(--color-primary-dark);
+}
+
+button[type="submit"]:disabled {
+  background: var(--color-text-light);
+  cursor: not-allowed;
+}

@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useStore } from 'tinybase/ui-react';
+import { useTable, useStore } from 'tinybase/ui-react';
+import { useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -31,11 +31,6 @@ interface Session extends Row {
   actualMetrics: string;
 }
 
-interface Workout extends Row {
-  name: string;
-  recordMetrics: string;
-}
-
 type MetricData = {
   name: string;
   value: number;
@@ -51,37 +46,24 @@ type ChartData = {
   }[];
 };
 
-type DateRange = 'week' | 'month' | 'year' | 'all';
-
 const CHART_COLORS = {
+  blue: 'rgb(75, 192, 192)',
   red: 'rgb(255, 99, 132)',
-  blue: 'rgb(54, 162, 235)',
-  green: 'rgb(75, 192, 192)',
-  purple: 'rgb(153, 102, 255)',
+  green: 'rgb(54, 162, 235)'
 };
 
 export const AnalyticsView = () => {
   const store = useStore()!;
-  const [selectedMetric, setSelectedMetric] = useState<string>('Average Heart Rate');
-  const [selectedWorkout, setSelectedWorkout] = useState<string>('all');
-  const [dateRange, setDateRange] = useState<DateRange>('month');
+  const sessions = useTable('sessions') as Record<string, Session>;
+  const workouts = useTable('workouts') as Record<string, { name: string; category: string; recordMetrics: string }>;
 
-  // Get all completed sessions
-  const sessions = store.getTable('sessions');
-  const workouts = store.getTable('workouts');
-  
-  // Get unique metrics from workouts
-  const allMetrics = new Set<string>();
-  Object.values(workouts).forEach(workout => {
-    const metrics = JSON.parse(workout.recordMetrics as string);
-    metrics.forEach((metric: string) => allMetrics.add(metric));
-  });
+  const [selectedMetric, setSelectedMetric] = useState<string>('');
+  const [selectedWorkout, setSelectedWorkout] = useState<string>('');
+  const [dateRange, setDateRange] = useState<'week' | 'month' | 'year'>('month');
 
-  // Get date range boundaries
   const getDateBoundaries = () => {
     const now = new Date();
-    const endDate = now;
-    let startDate = new Date();
+    const startDate = new Date();
 
     switch (dateRange) {
       case 'week':
@@ -93,60 +75,58 @@ export const AnalyticsView = () => {
       case 'year':
         startDate.setFullYear(now.getFullYear() - 1);
         break;
-      case 'all':
-        startDate = new Date(0); // Beginning of time
-        break;
     }
-    return { startDate, endDate };
+
+    return { startDate, endDate: now };
   };
 
-  // Prepare chart data with date filtering
+  const getAvailableMetrics = () => {
+    const metrics = new Set<string>();
+    Object.values(workouts).forEach(workout => {
+      const recordMetrics = JSON.parse(workout.recordMetrics);
+      recordMetrics.forEach((metric: string) => metrics.add(metric));
+    });
+    return Array.from(metrics);
+  };
+
+  const getAvailableWorkouts = () => {
+    return Object.values(workouts).map(workout => workout.name);
+  };
+
   const prepareChartData = (): ChartData => {
     const { startDate, endDate } = getDateBoundaries();
+    const completedSessions = Object.entries(sessions).filter(([_, session]) =>
+      session.completed &&
+      new Date(session.completedDate) >= startDate &&
+      new Date(session.completedDate) <= endDate
+    );
 
-    const completedSessions = Object.entries(sessions)
-      .filter(([_, session]) => (session as Session).completed)
-      .filter(([_, session]) => {
-        const sessionDate = new Date((session as Session).completedDate);
-        return sessionDate >= startDate && sessionDate <= endDate;
-      })
-      .sort((a, b) => new Date((a[1] as Session).completedDate).getTime() - new Date((b[1] as Session).completedDate).getTime());
+    const labels = completedSessions.map(([_, session]) =>
+      new Date(session.completedDate).toLocaleDateString()
+    );
 
     const datasets = [];
-    const labels = completedSessions.map(([_, session]) => (session as Session).completedDate);
 
-    if (selectedWorkout === 'all') {
-      // Group by workout name
-      const workoutGroups = completedSessions.reduce((acc, [_, session]) => {
-        const workoutName = (session as Session).workoutName;
-        if (!acc[workoutName]) acc[workoutName] = [];
-        acc[workoutName].push(session);
-        return acc;
-      }, {} as Record<string, any[]>);
-
-      // Create dataset for each workout
-      Object.entries(workoutGroups).forEach(([workoutName, sessions], index) => {
-        const data = sessions.map(session => {
-          const metrics = JSON.parse((session as Session).actualMetrics as string) as MetricData[];
-          return metrics.find(m => m.name === selectedMetric)?.value || 0;
-        });
-
-        datasets.push({
-          label: workoutName,
-          data,
-          borderColor: Object.values(CHART_COLORS)[index % Object.keys(CHART_COLORS).length],
-          backgroundColor: 'transparent',
-        });
-      });
-    } else {
+    if (selectedMetric && selectedWorkout) {
       // Filter sessions for selected workout
-      const filteredSessions = completedSessions.filter(([_, session]) => 
+      const filteredSessions = completedSessions.filter(([_, session]) =>
         (session as Session).workoutName === selectedWorkout
       );
 
       const data = filteredSessions.map(([_, session]) => {
-        const metrics = JSON.parse((session as Session).actualMetrics as string) as MetricData[];
-        return metrics.find(m => m.name === selectedMetric)?.value || 0;
+        const metrics = JSON.parse((session as Session).actualMetrics as string);
+        const workoutMetrics = metrics.find((w: any) => w.workoutName === selectedWorkout);
+        if (!workoutMetrics) return 0;
+
+        // Calculate average across all sets
+        const allSetValues = workoutMetrics.sets.map((set: any) => {
+          const metric = set.metrics.find((m: MetricData) => m.name === selectedMetric);
+          return metric?.value || 0;
+        });
+
+        return allSetValues.length > 0
+          ? allSetValues.reduce((a: number, b: number) => a + b, 0) / allSetValues.length
+          : 0;
       });
 
       datasets.push({
@@ -191,44 +171,57 @@ export const AnalyticsView = () => {
 
   return (
     <div className="analytics-view">
-      <div className="analytics-header">
-        <h2>Analytics</h2>
-        <div className="analytics-controls">
-          <select 
-            value={dateRange} 
-            onChange={(e) => setDateRange(e.target.value as DateRange)}
-            className="date-range-select"
-          >
-            <option value="week">Past Week</option>
-            <option value="month">Past Month</option>
-            <option value="year">Past Year</option>
-            <option value="all">All Time</option>
-          </select>
-          <select 
-            value={selectedMetric} 
+      <div className="analytics-controls">
+        <div className="control-group">
+          <label htmlFor="metric-select">Metric:</label>
+          <select
+            id="metric-select"
+            value={selectedMetric}
             onChange={(e) => setSelectedMetric(e.target.value)}
-            className="metric-select"
           >
-            {Array.from(allMetrics).map(metric => (
+            <option value="">Select a metric</option>
+            {getAvailableMetrics().map(metric => (
               <option key={metric} value={metric}>{metric}</option>
             ))}
           </select>
+        </div>
+
+        <div className="control-group">
+          <label htmlFor="workout-select">Workout:</label>
           <select
+            id="workout-select"
             value={selectedWorkout}
             onChange={(e) => setSelectedWorkout(e.target.value)}
-            className="workout-select"
           >
-            <option value="all">All Workouts</option>
-            {Object.values(workouts).map(workout => (
-              <option key={(workout as Workout).name} value={(workout as Workout).name}>
-                {(workout as Workout).name}
-              </option>
+            <option value="">Select a workout</option>
+            {getAvailableWorkouts().map(workout => (
+              <option key={workout} value={workout}>{workout}</option>
             ))}
           </select>
         </div>
+
+        <div className="control-group">
+          <label htmlFor="date-range">Date Range:</label>
+          <select
+            id="date-range"
+            value={dateRange}
+            onChange={(e) => setDateRange(e.target.value as 'week' | 'month' | 'year')}
+          >
+            <option value="week">Last Week</option>
+            <option value="month">Last Month</option>
+            <option value="year">Last Year</option>
+          </select>
+        </div>
       </div>
+
       <div className="chart-container">
-        <Line options={chartOptions} data={chartData} redraw={false} />
+        {selectedMetric && selectedWorkout ? (
+          <Line options={chartOptions} data={chartData} />
+        ) : (
+          <div className="no-data-message">
+            Select a metric and workout to view analytics
+          </div>
+        )}
       </div>
     </div>
   );

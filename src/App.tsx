@@ -18,129 +18,308 @@ export const App = () => {
           plannedDate: '2025-01-01',
           workouts: JSON.stringify([{
             workoutName: 'Norwegian 4x4',
-            targetMetrics: JSON.stringify([
-              { name: 'Average Heart Rate', value: 165 },
-              { name: 'Max Heart Rate', value: 182 },
-              { name: 'Duration', value: 45 }
-            ])
+            sets: [
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 165 },
+                  { name: 'Max Heart Rate', value: 182 },
+                  { name: 'Duration', value: 45 }
+                ]
+              },
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 170 },
+                  { name: 'Max Heart Rate', value: 185 },
+                  { name: 'Duration', value: 45 }
+                ]
+              }
+            ]
           }]),
           completed: true,
           completedDate: '2025-01-01',
-          actualMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 168 },
-            { name: 'Max Heart Rate', value: 185 },
-            { name: 'Duration', value: 43 }
-          ])
+          actualMetrics: JSON.stringify([{
+            workoutName: 'Norwegian 4x4',
+            sets: [
+              {
+                metrics: [
+                  { name: 'Average Heart Rate', value: 168 },
+                  { name: 'Max Heart Rate', value: 185 },
+                  { name: 'Duration', value: 43 }
+                ]
+              },
+              {
+                metrics: [
+                  { name: 'Average Heart Rate', value: 172 },
+                  { name: 'Max Heart Rate', value: 187 },
+                  { name: 'Duration', value: 44 }
+                ]
+              }
+            ]
+          }])
         },
         '2': {
           plannedDate: '2025-01-05',
           workouts: JSON.stringify([{
             workoutName: 'Zone 2 Base',
-            targetMetrics: JSON.stringify([
-              { name: 'Average Heart Rate', value: 145 },
-              { name: 'Max Heart Rate', value: 155 },
-              { name: 'Duration', value: 120 }
-            ])
+            sets: [
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 145 },
+                  { name: 'Max Heart Rate', value: 155 },
+                  { name: 'Duration', value: 60 }
+                ]
+              },
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 145 },
+                  { name: 'Max Heart Rate', value: 155 },
+                  { name: 'Duration', value: 60 }
+                ]
+              }
+            ]
           }]),
           completed: true,
           completedDate: '2025-01-05',
-          actualMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 142 },
-            { name: 'Max Heart Rate', value: 152 },
-            { name: 'Duration', value: 125 }
-          ])
+          actualMetrics: JSON.stringify([{
+            workoutName: 'Zone 2 Base',
+            sets: [
+              {
+                metrics: [
+                  { name: 'Average Heart Rate', value: 142 },
+                  { name: 'Max Heart Rate', value: 152 },
+                  { name: 'Duration', value: 62 }
+                ]
+              },
+              {
+                metrics: [
+                  { name: 'Average Heart Rate', value: 143 },
+                  { name: 'Max Heart Rate', value: 153 },
+                  { name: 'Duration', value: 63 }
+                ]
+              }
+            ]
+          }])
         },
         '3': {
           plannedDate: '2025-01-08',
           workouts: JSON.stringify([
             {
               workoutName: 'Threshold Intervals',
-              targetMetrics: JSON.stringify([
-                { name: 'Average Heart Rate', value: 172 },
-                { name: 'Max Heart Rate', value: 188 },
-                { name: 'Duration', value: 30 }
-              ])
+              sets: [
+                {
+                  targetMetrics: [
+                    { name: 'Average Heart Rate', value: 172 },
+                    { name: 'Max Heart Rate', value: 188 },
+                    { name: 'Duration', value: 30 }
+                  ]
+                },
+                {
+                  targetMetrics: [
+                    { name: 'Average Heart Rate', value: 175 },
+                    { name: 'Max Heart Rate', value: 190 },
+                    { name: 'Duration', value: 30 }
+                  ]
+                }
+              ]
             },
             {
               workoutName: 'Zone 2 Base',
-              targetMetrics: JSON.stringify([
-                { name: 'Average Heart Rate', value: 145 },
-                { name: 'Max Heart Rate', value: 155 },
-                { name: 'Duration', value: 30 }
-              ])
+              sets: [
+                {
+                  targetMetrics: [
+                    { name: 'Average Heart Rate', value: 145 },
+                    { name: 'Max Heart Rate', value: 155 },
+                    { name: 'Duration', value: 30 }
+                  ]
+                }
+              ]
             }
           ]),
           completed: true,
           completedDate: '2025-01-08',
           actualMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 175 },
-            { name: 'Max Heart Rate', value: 189 },
-            { name: 'Duration', value: 58 }
+            {
+              workoutName: 'Threshold Intervals',
+              sets: [
+                {
+                  metrics: [
+                    { name: 'Average Heart Rate', value: 175 },
+                    { name: 'Max Heart Rate', value: 189 },
+                    { name: 'Duration', value: 29 }
+                  ]
+                },
+                {
+                  metrics: [
+                    { name: 'Average Heart Rate', value: 177 },
+                    { name: 'Max Heart Rate', value: 191 },
+                    { name: 'Duration', value: 31 }
+                  ]
+                }
+              ]
+            },
+            {
+              workoutName: 'Zone 2 Base',
+              sets: [
+                {
+                  metrics: [
+                    { name: 'Average Heart Rate', value: 144 },
+                    { name: 'Max Heart Rate', value: 154 },
+                    { name: 'Duration', value: 32 }
+                  ]
+                }
+              ]
+            }
           ])
         },
         '4': {
           plannedDate: '2025-01-12',
           workouts: JSON.stringify([{
             workoutName: 'Norwegian 4x4',
-            targetMetrics: JSON.stringify([
-              { name: 'Average Heart Rate', value: 165 },
-              { name: 'Max Heart Rate', value: 182 },
-              { name: 'Duration', value: 45 }
-            ])
+            sets: [
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 165 },
+                  { name: 'Max Heart Rate', value: 182 },
+                  { name: 'Duration', value: 45 }
+                ]
+              },
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 170 },
+                  { name: 'Max Heart Rate', value: 185 },
+                  { name: 'Duration', value: 45 }
+                ]
+              }
+            ]
           }]),
           completed: true,
           completedDate: '2025-01-12',
-          actualMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 171 },
-            { name: 'Max Heart Rate', value: 187 },
-            { name: 'Duration', value: 46 }
-          ])
+          actualMetrics: JSON.stringify([{
+            workoutName: 'Norwegian 4x4',
+            sets: [
+              {
+                metrics: [
+                  { name: 'Average Heart Rate', value: 171 },
+                  { name: 'Max Heart Rate', value: 187 },
+                  { name: 'Duration', value: 46 }
+                ]
+              },
+              {
+                metrics: [
+                  { name: 'Average Heart Rate', value: 173 },
+                  { name: 'Max Heart Rate', value: 189 },
+                  { name: 'Duration', value: 45 }
+                ]
+              }
+            ]
+          }])
         },
         '5': {
           plannedDate: '2025-01-15',
           workouts: JSON.stringify([{
             workoutName: 'Zone 2 Base',
-            targetMetrics: JSON.stringify([
-              { name: 'Average Heart Rate', value: 145 },
-              { name: 'Max Heart Rate', value: 155 },
-              { name: 'Duration', value: 120 }
-            ])
+            sets: [
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 145 },
+                  { name: 'Max Heart Rate', value: 155 },
+                  { name: 'Duration', value: 60 }
+                ]
+              },
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 145 },
+                  { name: 'Max Heart Rate', value: 155 },
+                  { name: 'Duration', value: 60 }
+                ]
+              }
+            ]
           }]),
           completed: true,
           completedDate: '2025-01-15',
-          actualMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 144 },
-            { name: 'Max Heart Rate', value: 154 },
-            { name: 'Duration', value: 118 }
-          ])
+          actualMetrics: JSON.stringify([{
+            workoutName: 'Zone 2 Base',
+            sets: [
+              {
+                metrics: [
+                  { name: 'Average Heart Rate', value: 144 },
+                  { name: 'Max Heart Rate', value: 154 },
+                  { name: 'Duration', value: 58 }
+                ]
+              },
+              {
+                metrics: [
+                  { name: 'Average Heart Rate', value: 145 },
+                  { name: 'Max Heart Rate', value: 155 },
+                  { name: 'Duration', value: 60 }
+                ]
+              }
+            ]
+          }])
         },
         '6': {
           plannedDate: '2025-01-18',
           workouts: JSON.stringify([{
             workoutName: 'Threshold Intervals',
-            targetMetrics: JSON.stringify([
-              { name: 'Average Heart Rate', value: 172 },
-              { name: 'Max Heart Rate', value: 188 },
-              { name: 'Duration', value: 60 }
-            ])
+            sets: [
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 172 },
+                  { name: 'Max Heart Rate', value: 188 },
+                  { name: 'Duration', value: 30 }
+                ]
+              },
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 175 },
+                  { name: 'Max Heart Rate', value: 190 },
+                  { name: 'Duration', value: 30 }
+                ]
+              }
+            ]
           }]),
           completed: true,
           completedDate: '2025-01-18',
-          actualMetrics: JSON.stringify([
-            { name: 'Average Heart Rate', value: 173 },
-            { name: 'Max Heart Rate', value: 190 },
-            { name: 'Duration', value: 62 }
-          ])
+          actualMetrics: JSON.stringify([{
+            workoutName: 'Threshold Intervals',
+            sets: [
+              {
+                metrics: [
+                  { name: 'Average Heart Rate', value: 173 },
+                  { name: 'Max Heart Rate', value: 190 },
+                  { name: 'Duration', value: 31 }
+                ]
+              },
+              {
+                metrics: [
+                  { name: 'Average Heart Rate', value: 176 },
+                  { name: 'Max Heart Rate', value: 192 },
+                  { name: 'Duration', value: 31 }
+                ]
+              }
+            ]
+          }])
         },
         '7': {
           plannedDate: '2025-01-29',
           workouts: JSON.stringify([{
             workoutName: 'Norwegian 4x4',
-            targetMetrics: JSON.stringify([
-              { name: 'Average Heart Rate', value: 165 },
-              { name: 'Max Heart Rate', value: 182 },
-              { name: 'Duration', value: 45 }
-            ])
+            sets: [
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 165 },
+                  { name: 'Max Heart Rate', value: 182 },
+                  { name: 'Duration', value: 45 }
+                ]
+              },
+              {
+                targetMetrics: [
+                  { name: 'Average Heart Rate', value: 170 },
+                  { name: 'Max Heart Rate', value: 185 },
+                  { name: 'Duration', value: 45 }
+                ]
+              }
+            ]
           }]),
           completed: false
         }
