@@ -15,7 +15,7 @@ const SAMPLE_DATA = {
     '1': {
       plannedDate: '2025-01-01',
       workouts: JSON.stringify([{
-        workoutName: 'Norwegian 4x4',
+        workoutId: '1',
         sets: [
           {
             targetMetrics: [
@@ -36,7 +36,7 @@ const SAMPLE_DATA = {
       completed: true,
       completedDate: '2025-01-01',
       actualMetrics: JSON.stringify([{
-        workoutName: 'Norwegian 4x4',
+        workoutId: '1',
         sets: [
           {
             metrics: [
@@ -58,7 +58,7 @@ const SAMPLE_DATA = {
     '2': {
       plannedDate: '2025-01-05',
       workouts: JSON.stringify([{
-        workoutName: 'Zone 2 Base',
+        workoutId: '3',
         sets: [
           {
             targetMetrics: [
@@ -79,7 +79,7 @@ const SAMPLE_DATA = {
       completed: true,
       completedDate: '2025-01-05',
       actualMetrics: JSON.stringify([{
-        workoutName: 'Zone 2 Base',
+        workoutId: '3',
         sets: [
           {
             metrics: [
@@ -102,7 +102,7 @@ const SAMPLE_DATA = {
       plannedDate: '2025-01-08',
       workouts: JSON.stringify([
         {
-          workoutName: 'Threshold Intervals',
+          workoutId: '2',
           sets: [
             {
               targetMetrics: [
@@ -121,7 +121,7 @@ const SAMPLE_DATA = {
           ]
         },
         {
-          workoutName: 'Zone 2 Base',
+          workoutId: '3',
           sets: [
             {
               targetMetrics: [
@@ -137,7 +137,7 @@ const SAMPLE_DATA = {
       completedDate: '2025-01-08',
       actualMetrics: JSON.stringify([
         {
-          workoutName: 'Threshold Intervals',
+          workoutId: '2',
           sets: [
             {
               metrics: [
@@ -156,7 +156,7 @@ const SAMPLE_DATA = {
           ]
         },
         {
-          workoutName: 'Zone 2 Base',
+          workoutId: '3',
           sets: [
             {
               metrics: [
@@ -172,7 +172,7 @@ const SAMPLE_DATA = {
     '4': {
       plannedDate: '2025-01-12',
       workouts: JSON.stringify([{
-        workoutName: 'Norwegian 4x4',
+        workoutId: '1',
         sets: [
           {
             targetMetrics: [
@@ -193,7 +193,7 @@ const SAMPLE_DATA = {
       completed: true,
       completedDate: '2025-01-12',
       actualMetrics: JSON.stringify([{
-        workoutName: 'Norwegian 4x4',
+        workoutId: '1',
         sets: [
           {
             metrics: [
@@ -215,7 +215,7 @@ const SAMPLE_DATA = {
     '5': {
       plannedDate: '2025-01-15',
       workouts: JSON.stringify([{
-        workoutName: 'Zone 2 Base',
+        workoutId: '3',
         sets: [
           {
             targetMetrics: [
@@ -236,7 +236,7 @@ const SAMPLE_DATA = {
       completed: true,
       completedDate: '2025-01-15',
       actualMetrics: JSON.stringify([{
-        workoutName: 'Zone 2 Base',
+        workoutId: '3',
         sets: [
           {
             metrics: [
@@ -258,7 +258,7 @@ const SAMPLE_DATA = {
     '6': {
       plannedDate: '2025-01-18',
       workouts: JSON.stringify([{
-        workoutName: 'Threshold Intervals',
+        workoutId: '2',
         sets: [
           {
             targetMetrics: [
@@ -279,7 +279,7 @@ const SAMPLE_DATA = {
       completed: true,
       completedDate: '2025-01-18',
       actualMetrics: JSON.stringify([{
-        workoutName: 'Threshold Intervals',
+        workoutId: '2',
         sets: [
           {
             metrics: [
@@ -301,7 +301,7 @@ const SAMPLE_DATA = {
     '7': {
       plannedDate: '2025-01-29',
       workouts: JSON.stringify([{
-        workoutName: 'Norwegian 4x4',
+        workoutId: '1',
         sets: [
           {
             targetMetrics: [
@@ -324,20 +324,67 @@ const SAMPLE_DATA = {
   },
   workouts: {
     '1': {
-      name: 'Norwegian 4x4',
-      category: 'Aerobic Endurance',
-      recordMetrics: JSON.stringify(['Average Heart Rate', 'Max Heart Rate', 'Duration'])
+      exerciseId: 'ex1',
+      methodId: 'm1'
     },
     '2': {
-      name: 'Threshold Intervals',
-      category: 'Lactate Threshold',
-      recordMetrics: JSON.stringify(['Average Heart Rate', 'Max Heart Rate', 'Duration'])
+      exerciseId: 'ex2',
+      methodId: 'm2'
     },
     '3': {
-      name: 'Zone 2 Base',
-      category: 'Base Endurance',
-      recordMetrics: JSON.stringify(['Average Heart Rate', 'Max Heart Rate', 'Duration'])
+      exerciseId: 'ex1',
+      methodId: 'm2'
     }
+  }
+};
+
+// Add sample data for new tables
+const SAMPLE_EXERCISES = {
+  'ex1': { name: 'Elliptical', category: 'Energy System' },
+  'ex2': { name: 'Treadmill Run', category: 'Energy System' },
+  'ex3': { name: 'Weightlifting', category: 'Strength' },
+};
+
+const SAMPLE_METHODS = {
+  'm1': {
+    name: 'Alactic Power Intervals',
+    description: 'A green zone interval routine to build alactic power.',
+    sets: JSON.stringify([
+      {
+        targetMetrics: [
+          { name: 'Average Heart Rate', value: 165 },
+          { name: 'Max Heart Rate', value: 182 },
+          { name: 'Duration', value: 45 }
+        ]
+      },
+      {
+        targetMetrics: [
+          { name: 'Average Heart Rate', value: 170 },
+          { name: 'Max Heart Rate', value: 185 },
+          { name: 'Duration', value: 45 }
+        ]
+      }
+    ])
+  },
+  'm2': {
+    name: 'Zone 2 Base Training',
+    description: 'Steady state cardio to build aerobic base.',
+    sets: JSON.stringify([
+      {
+        targetMetrics: [
+          { name: 'Average Heart Rate', value: 145 },
+          { name: 'Max Heart Rate', value: 155 },
+          { name: 'Duration', value: 60 }
+        ]
+      },
+      {
+        targetMetrics: [
+          { name: 'Average Heart Rate', value: 145 },
+          { name: 'Max Heart Rate', value: 155 },
+          { name: 'Duration', value: 60 }
+        ]
+      }
+    ])
   }
 };
 
@@ -345,7 +392,9 @@ export const App = () => {
   const store = useCreateStore(() => {
     return createStore()
       .setTable('sessions', SAMPLE_DATA.sessions)
-      .setTable('workouts', SAMPLE_DATA.workouts);
+      .setTable('workouts', SAMPLE_DATA.workouts)
+      .setTable('exercises', SAMPLE_EXERCISES)
+      .setTable('methods', SAMPLE_METHODS);
   });
 
   useEffect(() => {
@@ -373,15 +422,21 @@ export const App = () => {
       // Clear store tables
       store.delTable('sessions');
       store.delTable('workouts');
+      store.delTable('exercises');
+      store.delTable('methods');
 
       // Set fresh data
       store.setTable('sessions', SAMPLE_DATA.sessions);
       store.setTable('workouts', SAMPLE_DATA.workouts);
+      store.setTable('exercises', SAMPLE_EXERCISES);
+      store.setTable('methods', SAMPLE_METHODS);
 
       // Log the current state to verify
       console.log('Store after reset:', {
         sessions: store.getTable('sessions'),
-        workouts: store.getTable('workouts')
+        workouts: store.getTable('workouts'),
+        exercises: store.getTable('exercises'),
+        methods: store.getTable('methods')
       });
 
       // Save the fresh data to localStorage

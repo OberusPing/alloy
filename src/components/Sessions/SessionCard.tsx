@@ -1,5 +1,6 @@
 import React from 'react';
-import { Metric, Session, WorkoutSet } from './types';
+import { Metric, Session, WorkoutSet, WorkoutSetMetrics } from './types';
+import { useTable } from 'tinybase/ui-react';
 
 type SessionCardProps = {
   id: string;
@@ -12,7 +13,6 @@ type SessionCardProps = {
 };
 
 const getWorkouts = (session: Session): WorkoutSet[] => {
-  if (!session.workouts) return [];
   try {
     return JSON.parse(session.workouts);
   } catch (e) {
@@ -21,10 +21,9 @@ const getWorkouts = (session: Session): WorkoutSet[] => {
   }
 };
 
-const getActualMetrics = (session: Session): WorkoutSet[] => {
-  if (!session.actualMetrics) return [];
+const getActualMetrics = (session: Session): WorkoutSetMetrics[] => {
   try {
-    return JSON.parse(session.actualMetrics);
+    return session.actualMetrics ? JSON.parse(session.actualMetrics) : [];
   } catch (e) {
     console.error('Failed to parse actual metrics:', e);
     return [];
@@ -40,7 +39,11 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   onEdit,
   onDelete
 }) => {
-  const workouts = getWorkouts(session);
+  const workouts = useTable('workouts') as Record<string, { exerciseId: string; methodId: string }>;
+  const exercises = useTable('exercises') as Record<string, { name: string; category: string }>;
+  const methods = useTable('methods') as Record<string, { name: string; description: string }>;
+
+  const sessionWorkouts = getWorkouts(session);
   const actualMetrics = getActualMetrics(session);
 
   return (
@@ -50,12 +53,17 @@ export const SessionCard: React.FC<SessionCardProps> = ({
           {new Date(session.plannedDate).toLocaleDateString()}
         </div>
         <div className="session-workouts">
-          {workouts.map((workout, index) => (
-            <span key={index} className="workout-name">
-              {workout.workoutName}
-              {index < workouts.length - 1 && ', '}
-            </span>
-          ))}
+          {sessionWorkouts.map((workout, index) => {
+            const workoutData = workouts[workout.workoutId];
+            const exercise = exercises[workoutData.exerciseId];
+            const method = methods[workoutData.methodId];
+            return (
+              <span key={index} className="workout-name">
+                {exercise.name} - {method.name}
+                {index < sessionWorkouts.length - 1 && ', '}
+              </span>
+            );
+          })}
         </div>
         <div className="session-status">
           {session.completed ? 'Completed' : 'Planned'}
@@ -72,18 +80,23 @@ export const SessionCard: React.FC<SessionCardProps> = ({
             )}
           </div>
           <div className="metrics-list">
-            {workouts.map((workout, workoutIndex) => {
-              const actualWorkout = actualMetrics.find(w => w.workoutName === workout.workoutName);
+            {sessionWorkouts.map((workout, workoutIndex) => {
+              const workoutData = workouts[workout.workoutId];
+              const exercise = exercises[workoutData.exerciseId];
+              const method = methods[workoutData.methodId];
+              const actualWorkout = actualMetrics.find(w => w.workoutId === workout.workoutId);
+
               return (
                 <div key={workoutIndex} className="workout-metrics">
-                  <h4>{workout.workoutName}</h4>
+                  <h4>{exercise.name} - {method.name}</h4>
+                  <p className="method-description">{method.description}</p>
                   {workout.sets.map((set, setIndex) => {
-                    const actualSet = actualWorkout?.sets[setIndex];
+                    const actualSet = actualWorkout?.sets?.[setIndex];
                     return (
                       <div key={setIndex} className="set-metrics">
                         <h5>Set {setIndex + 1}</h5>
                         {set.targetMetrics.map((metric) => {
-                          const actualMetric = session.completed && actualSet
+                          const actualMetric = session.completed && actualSet && actualSet.metrics
                             ? actualSet.metrics.find((m: Metric) => m.name === metric.name)
                             : null;
 
@@ -112,7 +125,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
             {!session.completed && (
               <button
                 className="action-button complete-button"
-                onClick={() => onComplete({ id, workouts })}
+                onClick={() => onComplete({ id, workouts: sessionWorkouts })}
               >
                 Complete
               </button>
@@ -125,7 +138,10 @@ export const SessionCard: React.FC<SessionCardProps> = ({
             </button>
             <button
               className="action-button delete-button"
-              onClick={() => onDelete({ id, workoutName: workouts[0].workoutName })}
+              onClick={() => onDelete({
+                id,
+                workoutName: `${exercises[workouts[sessionWorkouts[0].workoutId].exerciseId].name} - ${methods[workouts[sessionWorkouts[0].workoutId].methodId].name}`
+              })}
             >
               Delete
             </button>

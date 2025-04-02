@@ -4,15 +4,14 @@ export type Metric = {
 };
 
 export type WorkoutSet = {
-  workoutName: string;
+  workoutId: string;
   sets: {
     targetMetrics: Metric[];
-    metrics?: Metric[];
   }[];
 };
 
 export type WorkoutSetMetrics = {
-  workoutName: string;
+  workoutId: string;
   sets: {
     metrics: Metric[];
   }[];
@@ -26,7 +25,27 @@ export type Session = {
   actualMetrics?: string; // JSON string of WorkoutSetMetrics[]
 };
 
-export type Workout = {
-  workoutName: string;
-  targetMetrics: Metric[];
-} 
+export type WorkoutData = {
+  exerciseId: string;
+  methodId: string;
+};
+
+export type ExerciseData = {
+  name: string;
+  category: string;
+};
+
+export type MethodData = {
+  name: string;
+  description: string;
+  sets: string; // JSON string of sets with targetMetrics
+  metricProgression: string; // JSON string of progression rules
+};
+
+export type WorkoutMetricsState = {
+  [key: string]: {
+    sets: Array<{
+      [key: string]: number;
+    }>;
+  };
+}; 

@@ -6,12 +6,12 @@ import { SessionEditForm } from './SessionEditForm';
 import { ConfirmDialog } from '../ConfirmDialog/ConfirmDialog';
 import { SessionForm } from './SessionForm';
 import { SessionCard } from './SessionCard';
-import { Session, Workout } from './types';
+import { Session, WorkoutSet } from './types';
 
 type TimeFrame = 'day' | 'week' | 'month' | 'all';
 type StatusFilter = 'all' | 'planned' | 'completed';
 
-const getWorkouts = (session: Session): Workout[] => {
+const getWorkouts = (session: Session): WorkoutSet[] => {
   try {
     return JSON.parse(session.workouts);
   } catch (e) {
@@ -27,9 +27,12 @@ export const SessionsView = () => {
   const [showSessionForm, setShowSessionForm] = useState<boolean>(false);
   const sessions = useTable('sessions') as Record<string, Session>;
   const workouts = useTable('workouts') as Record<string, { name: string }>;
+  const workoutsTable = useTable('workouts') as Record<string, { exerciseId: string; methodId: string }>;
+  const exercisesTable = useTable('exercises') as Record<string, { name: string; category: string }>;
+  const methodsTable = useTable('methods') as Record<string, { name: string; description: string }>;
   const [completingSession, setCompletingSession] = useState<{
     id: string;
-    workouts: Workout[];
+    workouts: WorkoutSet[];
   } | null>(null);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [deletingSession, setDeletingSession] = useState<{
@@ -79,7 +82,13 @@ export const SessionsView = () => {
 
       // Workout filter
       if (selectedWorkout !== 'all' &&
-        !workouts.some(w => w.workoutName === selectedWorkout)) {
+        !workouts.some(w => {
+          const workoutData = workoutsTable[w.workoutId];
+          const exercise = exercisesTable[workoutData.exerciseId];
+          const method = methodsTable[workoutData.methodId];
+          const workoutName = `${exercise.name} - ${method.name}`;
+          return workoutName === selectedWorkout;
+        })) {
         return false;
       }
 

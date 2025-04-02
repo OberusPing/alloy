@@ -55,7 +55,9 @@ const CHART_COLORS = {
 export const AnalyticsView = () => {
   const store = useStore()!;
   const sessions = useTable('sessions') as Record<string, Session>;
-  const workouts = useTable('workouts') as Record<string, { name: string; category: string; recordMetrics: string }>;
+  const workouts = useTable('workouts') as Record<string, { exerciseId: string; methodId: string }>;
+  const methods = useTable('methods') as Record<string, { name: string; sets: string }>;
+  const exercises = useTable('exercises');
 
   const [selectedMetric, setSelectedMetric] = useState<string>('');
   const [selectedWorkout, setSelectedWorkout] = useState<string>('');
@@ -82,15 +84,31 @@ export const AnalyticsView = () => {
 
   const getAvailableMetrics = () => {
     const metrics = new Set<string>();
-    Object.values(workouts).forEach(workout => {
-      const recordMetrics = JSON.parse(workout.recordMetrics);
-      recordMetrics.forEach((metric: string) => metrics.add(metric));
+
+    // Get metrics from all methods
+    Object.values(methods).forEach(method => {
+      try {
+        const methodSets = JSON.parse(method.sets);
+        methodSets.forEach((set: { targetMetrics: Array<{ name: string }> }) => {
+          set.targetMetrics.forEach(metric => metrics.add(metric.name));
+        });
+      } catch (error) {
+        console.error('Error parsing method sets:', error);
+      }
     });
+
     return Array.from(metrics);
   };
 
   const getAvailableWorkouts = () => {
-    return Object.values(workouts).map(workout => workout.name);
+    // Get exercises and methods to display workout labels properly
+    return Object.entries(workouts).map(([id, workout]) => {
+      const exercise = exercises[workout.exerciseId];
+      const method = methods[workout.methodId];
+      const label = `${exercise.name} - ${method.name}`;
+
+      return { id, label };
+    });
   };
 
   const prepareChartData = (): ChartData => {
@@ -109,13 +127,17 @@ export const AnalyticsView = () => {
 
     if (selectedMetric && selectedWorkout) {
       // Filter sessions for selected workout
-      const filteredSessions = completedSessions.filter(([_, session]) =>
-        (session as Session).workoutName === selectedWorkout
-      );
+      const filteredSessions = completedSessions.filter(([_, session]) => {
+        // Parse workouts from session
+        const sessionWorkouts = JSON.parse(String(session.workouts));
+        return sessionWorkouts.some((sw: any) => sw.workoutId === selectedWorkout);
+      });
 
       const data = filteredSessions.map(([_, session]) => {
-        const metrics = JSON.parse((session as Session).actualMetrics as string);
-        const workoutMetrics = metrics.find((w: any) => w.workoutName === selectedWorkout);
+        if (!session.actualMetrics) return 0;
+
+        const metrics = JSON.parse(session.actualMetrics);
+        const workoutMetrics = metrics.find((w: any) => w.workoutId === selectedWorkout);
         if (!workoutMetrics) return 0;
 
         // Calculate average across all sets
@@ -129,8 +151,14 @@ export const AnalyticsView = () => {
           : 0;
       });
 
+      // Get workout display label
+      const workout = workouts[selectedWorkout];
+      const exercise = exercises[workout.exerciseId];
+      const method = methods[workout.methodId];
+      const workoutLabel = `${exercise.name} - ${method.name}`;
+
       datasets.push({
-        label: selectedWorkout,
+        label: workoutLabel,
         data,
         borderColor: CHART_COLORS.blue,
         backgroundColor: 'transparent',
@@ -195,7 +223,7 @@ export const AnalyticsView = () => {
           >
             <option value="">Select a workout</option>
             {getAvailableWorkouts().map(workout => (
-              <option key={workout} value={workout}>{workout}</option>
+              <option key={workout.id} value={workout.id}>{workout.label}</option>
             ))}
           </select>
         </div>

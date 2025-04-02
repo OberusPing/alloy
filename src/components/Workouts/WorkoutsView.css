@@ -41,6 +41,7 @@
   border-radius: 4px;
   padding: 15px;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .workout-item:hover {
@@ -108,4 +109,65 @@
 
 .new-workout-button:hover {
   background-color: #1565c0;
-} 
+}
+
+.method-description {
+  color: var(--color-text-light);
+  font-size: 0.9em;
+  margin-bottom: 15px;
+}
+
+.workout-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.method-name {
+  font-size: 0.9em;
+  color: var(--color-text-light);
+  margin-top: 3px;
+}
+
+.metrics-section {
+  margin-top: 15px;
+}
+
+.metrics-section h4 {
+  margin: 0 0 10px 0;
+  color: var(--color-text-light);
+  font-size: 1em;
+}
+
+.set-metrics {
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: var(--color-secondary-light, #f5f5f5);
+  border-radius: 4px;
+}
+
+.set-metrics h5 {
+  margin: 0 0 8px 0;
+  font-size: 0.95em;
+  color: var(--color-text);
+}
+
+.show-more,
+.show-less {
+  text-align: center;
+  color: var(--color-primary);
+  font-size: 0.9em;
+  margin-top: 10px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.show-more:hover,
+.show-less:hover {
+  text-decoration: underline;
+}
+
+.metrics-section.expanded {
+  padding: 10px;
+  background-color: var(--color-secondary-light, #f5f5f5);
+  border-radius: 4px;
+}
